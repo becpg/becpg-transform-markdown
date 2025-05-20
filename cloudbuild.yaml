@@ -39,7 +39,7 @@ steps:
      - run
      - --filename=deployment.yml
      - --location=${_GKE_LOCATION}
-     - --image=${_IMAGE_NAME}:${_TAG}
+     - --image=${BECPG_DOCKER_REPO}/becpg-transform-markdown:${_TAG}
      - --cluster=${_GKE_CLUSTER}
      - --project=${_GKE_PROJECT}
 substitutions:
