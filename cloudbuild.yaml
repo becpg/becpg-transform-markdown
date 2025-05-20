@@ -1,0 +1,58 @@
+steps:
+  - id: 'compile'
+    name: maven:3-openjdk-17
+    entrypoint: mvn
+    args: ['package','-DskipTests=true', '-Ddocker.becpg.url=${_DOCKER_REPO}','-Ddocker.becpg.version=${_VERSION}', '-Ddocker.becpg.tag=${_TAG}']
+
+  - id: 'build-becpg-docker'
+    name: 'gcr.io/cloud-builders/docker'
+    args:
+      - compose
+      - -f
+      - /workspace/target/docker-compose.yml 
+      - build
+    waitFor:
+      - 'compile'
+
+  - id: 'push-becpg-docker'
+    name: 'gcr.io/cloud-builders/docker'
+    args:
+      - compose
+      - -f
+      - /workspace/target/docker-compose.yml 
+      - push
+    waitFor:
+      - 'build-becpg-docker'      
+      
+  - id: 'sonar'
+    name: maven:3-openjdk-17
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+         mvn sonar:sonar -Dsonar.host.url=https://sonar.becpg.fr -Dsonar.login=$$SONAR_LOGIN 
+    secretEnv: ['SONAR_LOGIN']       
+    waitFor:
+      - 'push-becpg-docker' 
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+     - run
+     - --filename=deployment.yml
+     - --location=${_GKE_LOCATION}
+     - --image=${_IMAGE_NAME}:${_TAG}
+     - --cluster=${_GKE_CLUSTER}
+     - --project=${_GKE_PROJECT}
+substitutions:
+  _DOCKER_REPO: ${BECPG_DOCKER_REPO}
+  _VERSION: 1.0.0
+  _TAG: ${_VERSION}-${SHORT_SHA}
+  _GKE_CLUSTER: ${BECPG_TEST_CLUSTER}
+  _GKE_PROJECT: ${PROJECT_ID}
+  _GKE_LOCATION : ${BECPG_TEST_CLUSTER_LOCATION}
+availableSecrets:
+  secretManager:
+  - versionName: projects/${PROJECT_ID}/secrets/becpg-sonar-login/versions/latest
+    env: 'SONAR_LOGIN'   
+options:
+  dynamic_substitutions: true
+images: ['${_DOCKER_REPO}/becpg-transform-markdown:${_TAG}']    

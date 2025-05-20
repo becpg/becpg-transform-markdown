@@ -47,13 +47,7 @@ The transformer supports the following **source formats**, converted into:
 To create the transformer Docker image, run:
 
 ```bash
-./build.sh
-```
-
-For debug mode :
-
-```
-./build-debug.sh
+./run.sh build
 ```
 
 This uses `alfresco-base-java` and installs Python 3 and the `docling` package via pip.
@@ -61,22 +55,16 @@ This uses `alfresco-base-java` and installs Python 3 and the `docling` package v
 To run the image :
 
 ```
-./run.sh
+./run.sh start
 ```
 
-For debug mode :
-
-```
-./run-debug.sh
-```
-
-* Port 8095 is for transformations
+* Port 8090 is for transformations
 * Port 8099 is for debugging
 
 Example of request to transform a PDF file to Markdown:
 
 ```shell
-curl --location --request POST 'http://localhost:8095/transform' \
+curl --location --request POST 'http://localhost:8090/transform' \
 --form 'file=@"/path/to/sample.pdf"' \
 --form 'sourceMimetype="application/pdf"' \
 --form 'targetMimetype="text/markdown"'
@@ -90,11 +78,11 @@ You can declare the Docker service as follow in a docker-compose.yml file:
   becpg-transform-markdown:
     image: becpg-transform-markdown:1.0.0
     ports:
-      - "8095:8095"
+      - "8090:8090"
     environment:
-      - SERVER_PORT=8095
+      - SERVER_PORT=8090
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8095/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:8090/live"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -103,7 +91,7 @@ You can declare the Docker service as follow in a docker-compose.yml file:
 Add the following JVM property to your Alfresco instance:
 
 ```
--DlocalTransform.becpg-transform-markdown.url=http://localhost:8095/
+-DlocalTransform.becpg-transform-markdown.url=http://localhost:8090/
 ```
 
 This allows Alfresco to discover and use the transformer.

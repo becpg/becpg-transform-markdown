@@ -1,336 +1,172 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>fr.becpg</groupId>
-    <artifactId>becpg-transform-markdown</artifactId>
-    <name>beCPG Markdown transformer</name>
-    <version>1.0.0-SNAPSHOT</version>
-	
+<!-- Copyright (C) 2010-2025 beCPG. This file is part of beCPG beCPG is free
+software: you can redistribute it and/or modify it under the terms of the GNU
+Lesser General Public License as published by 
+	the Free Software Foundation, either version 3 of the License, or (at your
+option) any later version. beCPG is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the 
+	implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
+the GNU Lesser General Public License for more details. You should have
+received
+a copy of the GNU Lesser General Public License 
+	along with beCPG. If not, see <http://www.gnu.org/licenses/>. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>fr.becpg</groupId>
+	<artifactId>becpg-transform-markdown</artifactId>
+	<name>beCPG Markdown transformer</name>
+	<version>1.0.0-SNAPSHOT</version>
+	<licenses>
+		<license>
+			<name>GNU LESSER GENERAL PUBLIC LICENSE</name>
+			<url>http://www.gnu.org/licenses/lgpl-3.0.en.html</url>
+			<comments>Copyright (C) 2010-2025 beCPG.
+
+				beCPG is free software: you can redistribute it and/or modify
+				it under the terms of the GNU Lesser General Public License as
+				published by
+				the Free Software Foundation, either version 3 of the License,
+				or
+				(at your option) any later version.
+
+				beCPG is distributed in the hope that it will be useful,
+				but WITHOUT ANY WARRANTY; without even the implied warranty of
+				MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+				GNU Lesser General Public License for more details.
+			</comments>
+		</license>
+	</licenses>
+
 	<parent>
-        <groupId>org.alfresco</groupId>
-        <artifactId>alfresco-transform-core</artifactId>
-        <version>5.1.7</version>
-    </parent>
-    
-    <properties>
-        <image.name>becpg/becpg-transform-markdown</image.name>
-        <project_version>${project.version}</project_version>
-        <project_artifactId>${project.artifactId}</project_artifactId>
-    </properties>
+		<groupId>org.alfresco</groupId>
+		<artifactId>alfresco-transform-core</artifactId>
+		<version>5.1.7</version>
+	</parent>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.alfresco</groupId>
-            <artifactId>alfresco-base-t-engine</artifactId>
-            <version>${parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.alfresco</groupId>
-            <artifactId>alfresco-base-t-engine</artifactId>
-            <version>${parent.version}</version>
-            <classifier>tests</classifier>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.vaadin.external.google</groupId>
-                    <artifactId>android-json</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-	
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.alfresco.transform.base.Application</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+	<properties>
+		<encoding>UTF-8</encoding>
+		<docker.becpg.tag>${project.version}</docker.becpg.tag>
+		<docker.becpg.version>1.0</docker.becpg.version>
+		<docker.becpg.url>becpg</docker.becpg.url>
+	</properties>
 
-    <profiles>
-        <profile>
-            <id>docker-it-setup</id>
-            <!-- raises an ActiveMq container for the Integration Tests -->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>integration-tests</id>
-                                <goals>
-                                    <goal>start</goal>
-                                    <goal>stop</goal>
-                                </goals>
-                                <configuration>
-                                    <images>
-                                        <image>
-                                            <name>alfresco/alfresco-activemq:5.18.3-jre17-rockylinux8</name>
-                                            <run>
-                                                <hostname>activemq</hostname>
-                                                <ports>
-                                                    <port>8161:8161</port>
-                                                    <port>5672:5672</port>
-                                                    <port>61616:61616</port>
-                                                </ports>
-                                                <wait>
-                                                    <log>Apache ActiveMQ 5.* started</log>
-                                                    <time>20000</time>
-                                                    <kill>500</kill>
-                                                    <shutdown>100</shutdown>
-                                                    <exec>
-                                                        <preStop>kill 1</preStop>
-                                                        <preStop>kill -9 1</preStop>
-                                                    </exec>
-                                                </wait>
-                                            </run>
-                                        </image>
-                                        <image>
-                                            <name>${image.name}:${image.tag}</name>
-                                            <run>
-                                                <ports>
-                                                    <port>8090:8090</port>
-                                                </ports>
-                                                <wait>
-                                                    <http>
-                                                        <url>http://localhost:8090/transform/config</url>
-                                                        <method>GET</method>
-                                                        <status>200...299</status>
-                                                    </http>
-                                                    <time>300000</time>
-                                                    <kill>500</kill>
-                                                    <shutdown>100</shutdown>
-                                                    <exec>
-                                                        <preStop>kill 1</preStop>
-                                                        <preStop>kill -9 1</preStop>
-                                                    </exec>
-                                                </wait>
-                                            </run>
-                                        </image>
-                                    </images>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+	<dependencies>
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>alfresco-base-t-engine</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.alfresco</groupId>
+			<artifactId>alfresco-base-t-engine</artifactId>
+			<version>${project.parent.version}</version>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin.external.google</groupId>
+					<artifactId>android-json</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-        <profile>
-            <id>local</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>build-image</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                </goals>
-                                <configuration>
-                                    <images>
-                                        <image>
-                                            <name>${image.name}:${image.tag}</name>
-                                            <build>
-                                                <contextDir>${project.basedir}</contextDir>
-                                                <buildOptions>
-                                                    <squash>true</squash>
-                                                </buildOptions>
-                                            </build>
-                                        </image>
-                                    </images>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>org.alfresco.transform.base.Application</mainClass>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-and-filter-docker-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/docker</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</resource>
+							</resources>
+							<useDefaultDelimiters>true</useDefaultDelimiters>
+							<delimiters>
+								<delimiter>${*}</delimiter>
+							</delimiters>
+							<escapeString>\</escapeString>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>strip-snapshot</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>docker.becpg.tag</name>
+							<value>${project.version}</value>
+							<regex>^(.*?)(-SNAPSHOT)?$</regex>
+							<replacement>$1</replacement>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-        <profile>
-            <id>internal</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <images>
-                                <!-- QuayIO image -->
-                                <image>
-                                    <name>${image.name}:${image.tag}</name>
-                                    <registry>${image.registry}</registry>
-                                    <build>
-                                        <buildx>
-                                            <platforms>
-                                                <platform>linux/amd64</platform>
-                                                <platform>linux/arm64</platform>
-                                            </platforms>
-                                            <attestations>
-                                                <provenance>false</provenance>
-                                            </attestations>
-                                        </buildx>
-                                        <contextDir>${project.basedir}</contextDir>
-                                        <buildOptions>
-                                            <squash>true</squash>
-                                        </buildOptions>
-                                    </build>
-                                </image>
-                                <!-- DockerHub image -->
-                                <image>
-                                    <name>${image.name}:${image.tag}</name>
-                                    <build>
-                                        <buildx>
-                                            <platforms>
-                                                <platform>linux/amd64</platform>
-                                                <platform>linux/arm64</platform>
-                                            </platforms>
-                                            <attestations>
-                                                <provenance>false</provenance>
-                                            </attestations>
-                                        </buildx>
-                                        <contextDir>${project.basedir}</contextDir>
-                                        <buildOptions>
-                                            <squash>true</squash>
-                                        </buildOptions>
-                                    </build>
-                                </image>
-                            </images>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>build-image</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>push-image</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>push</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+		</plugins>
+	</build>
 
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <configuration>
-                            <images>
-                                <!-- QuayIO image -->
-                                <image>
-                                    <name>${image.name}:${project.version}</name>
-                                    <registry>${image.registry}</registry>
-                                    <build>
-                                        <buildx>
-                                            <platforms>
-                                                <platform>linux/amd64</platform>
-                                                <platform>linux/arm64</platform>
-                                            </platforms>
-                                            <attestations>
-                                                <provenance>false</provenance>
-                                            </attestations>
-                                        </buildx>
-                                        <contextDir>${project.basedir}</contextDir>
-                                        <buildOptions>
-                                            <squash>true</squash>
-                                        </buildOptions>
-                                    </build>
-                                </image>
-                                <!-- DockerHub image -->
-                                <image>
-                                    <name>${image.name}:${project.version}</name>
-                                    <build>
-                                        <buildx>
-                                            <platforms>
-                                                <platform>linux/amd64</platform>
-                                                <platform>linux/arm64</platform>
-                                            </platforms>
-                                            <attestations>
-                                                <provenance>false</provenance>
-                                            </attestations>
-                                        </buildx>
-                                        <contextDir>${project.basedir}</contextDir>
-                                        <buildOptions>
-                                            <squash>true</squash>
-                                        </buildOptions>
-                                    </build>
-                                </image>
-                            </images>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>build</goal>
-                                    <goal>push</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 	<repositories>
 		<repository>

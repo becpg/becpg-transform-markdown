@@ -13,17 +13,17 @@ RUN yum install -y python3 python3-pip && \
     pip3 install --no-cache-dir docling && \
     yum clean all
 
-COPY src/main/docker/docling-convert.sh /usr/local/bin/docling-convert.sh
+COPY docling-convert.sh /usr/local/bin/docling-convert.sh
 
 RUN chmod +x /usr/local/bin/docling-convert.sh
 
-COPY target/*.jar /usr/bin/app.jar
+COPY becpg-transform-markdown-${project.version}.jar /usr/bin/app.jar
 
 RUN groupadd -g ${GROUPID} ${GROUPNAME} && \
     useradd -u ${USERID} -G ${GROUPNAME} ${USERNAME} && \
     chgrp -R ${GROUPNAME} /usr/bin/app.jar
 
-EXPOSE 8095
+EXPOSE 8090
 
 USER ${USERNAME}
 

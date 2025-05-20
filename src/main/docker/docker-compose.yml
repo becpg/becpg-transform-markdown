@@ -1,0 +1,17 @@
+services:
+  becpg-transform-markdown:
+    image: ${docker.becpg.url}/becpg-transform-markdown:${docker.becpg.tag}
+    build:
+      tags: 
+       - ${docker.becpg.url}/becpg-transform-markdown:${docker.becpg.tag}
+       - ${docker.becpg.url}/becpg-transform-markdown:${docker.becpg.version}
+      cache_from:
+        - ${docker.becpg.url}/becpg-transform-markdown:${docker.becpg.version}
+      dockerfile: ./Dockerfile
+      context: ${project.basedir}/target/   
+    restart: unless-stopped
+    ports:
+     - 8090:8090
+     - 8099:8099
+    environment:
+      JAVA_OPTS: "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:8099"
