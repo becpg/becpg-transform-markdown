@@ -31,6 +31,7 @@ EXPOSE 8095
 
 USER ${USERNAME}
 
-ENV JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:8099"
+ARG JAVA_OPTS
+ENV JAVA_OPTS=${JAVA_OPTS}
 
 ENTRYPOINT java $JAVA_OPTS -jar /usr/bin/app.jar
