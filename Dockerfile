@@ -9,19 +9,15 @@ ARG GROUPID=1000
 ARG USERNAME=alfresco
 ARG USERID=33002
 
-# Install Python and pip
 RUN yum install -y python3 python3-pip && \
     pip3 install --no-cache-dir docling && \
     yum clean all
 
-COPY docling-convert.sh /usr/local/bin/docling-convert.sh
+COPY src/main/docker/docling-convert.sh /usr/local/bin/docling-convert.sh
 
-# Make the script executable
 RUN chmod +x /usr/local/bin/docling-convert.sh
 
 COPY target/*.jar /usr/bin/app.jar
-#COPY decode_and_convert.sh /usr/local/bin/decode_and_convert.sh
-#RUN chmod +x /usr/local/bin/decode_and_convert.sh
 
 RUN groupadd -g ${GROUPID} ${GROUPNAME} && \
     useradd -u ${USERID} -G ${GROUPNAME} ${USERNAME} && \

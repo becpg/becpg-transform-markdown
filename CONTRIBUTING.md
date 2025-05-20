@@ -1,6 +1,4 @@
-Certainly! It looks like there are some issues with the links. Here's the corrected version:
-
-## Contributing
+# Contributing
 
 We welcome and appreciate your contributions to beCPG PLM! Whether it's code, translations, or suggestions, your help is essential for the project's success. Please follow the guidelines below to contribute effectively.
 
@@ -12,18 +10,19 @@ We welcome and appreciate your contributions to beCPG PLM! Whether it's code, tr
 ### Submitting a Pull Request
 
 1. [Fork](<link-to-your-repository>/fork) and clone the repository.
-2. Configure and install dependencies: `mvn clean test`.
-3. Create a new branch: `git checkout -b my-branch-name`.
-4. Make your changes, add tests, and ensure the tests still pass.
-5. Push to your fork and [submit a pull request](https://github.com/becpg/becpg-java-rest-api/compare).
-6. Celebrate! Wait for your pull request to be reviewed and merged.
+2. Configure and install dependencies: `./run.sh build_start`.
+3. Ensure tests pass on your machine: `./run.sh test`.
+4. Create a new branch: `git checkout -b my-branch-name`.
+5. Make your changes, add tests, and ensure the tests still pass.
+6. Push to your fork and [submit a pull request](https://github.com/becpg/becpg-community/compare).
+7. Celebrate! Wait for your pull request to be reviewed and merged.
 
 To increase the likelihood of your pull request being accepted:
 
-- Follow our [style guide](https://github.com/becpg/becpg-community/blob/master/docs/style.md).
+- Follow our [style guide](./docs/style.md).
 - Write and update tests to cover your changes.
 - Keep changes focused. Consider submitting unrelated changes as separate pull requests.
-- Write a [good commit message](ttps://github.com/becpg/becpg-community/blob/master/docs/git-commits-messages.md).
+- Write a [good commit message](./docs/git-commits-messages.md).
 
 Feel free to submit Work in Progress pull requests to get early feedback or if you encounter any blockers.
 
