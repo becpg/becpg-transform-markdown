@@ -34,7 +34,16 @@ spec:
     spec:
       containers:
         - name: becpg-transform-markdown
-          image: becpg/becpg-transform-markdown:latest
+          image: europe-west1-docker.pkg.dev/becpg-314807/becpg-docker/becpg-transform-markdown:latest        
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 33002
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           ports:
             - containerPort: 8090
           env:

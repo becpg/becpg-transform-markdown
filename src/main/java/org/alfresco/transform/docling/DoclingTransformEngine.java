@@ -59,7 +59,7 @@ public class DoclingTransformEngine implements TransformEngine {
 
 	@Override
 	public ProbeTransform getProbeTransform() {
-		return new ProbeTransform("probe.md", "application/pdf", "text/markdown", Collections.emptyMap(), 25383, 1024, 150, 1024, 60 * 15 + 1,
-				60 * 15);
+		return new ProbeTransform("probe.pdf", "application/pdf", "text/markdown", Collections.emptyMap(), 25383, 1024, 150, 1024, 60 * 15L + 1,
+				60 * 15L);
 	}
 }
