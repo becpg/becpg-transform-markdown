@@ -91,8 +91,7 @@ public class DoclingTransformer extends AbstractCommandExecutor implements Custo
 			doclingTargetFormat = "md";
 		}
 		final String options = "--to " + doclingTargetFormat 
-				+ (Boolean.TRUE.toString().equals(transformOptions.get("skipImages")) ? " --image-export-mode placeholder" : "")
-				+ " --pdf-backend dlparse_v4";
+				+ (Boolean.TRUE.toString().equals(transformOptions.get("skipImages")) ? " --image-export-mode placeholder" : "");
 		String pageRange = "";
 		Long timeout = null;
 		run(options, sourceFile, pageRange, targetFile, timeout);
