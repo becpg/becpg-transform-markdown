@@ -38,23 +38,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DoclingTransformEngine implements TransformEngine {
+public class MarkdownTransformEngine implements TransformEngine {
 	@Autowired
 	private TransformConfigResourceReader transformConfigResourceReader;
 
 	@Override
 	public String getTransformEngineName() {
-		return "docling";
+		return "becpg-transform-markdown";
 	}
 
 	@Override
 	public String getStartupMessage() {
-		return COMMUNITY_LICENCE + "This transformer uses Docling";
+		return COMMUNITY_LICENCE + "This transformer uses Docling and md2pdf";
 	}
 
 	@Override
 	public TransformConfig getTransformConfig() {
-		return transformConfigResourceReader.read("classpath:docling_engine_config.json");
+		return transformConfigResourceReader.read("classpath:becpg_transform_markdown_config.json");
 	}
 
 	@Override
