@@ -1,14 +1,14 @@
-# Alfresco Transformer: Docling-based PDF/Office/HTML/Image ➜ Markdown & JSON
+# Alfresco Transformer: Docling-based PDF/Office/HTML/Image ➜ Markdown & JSON + md2pdf-based Markdown ➜ PDF
 
-This project provides an Alfresco Content Services (ACS) transformer that converts a wide variety of document types into Markdown and JSON formats using [Docling](https://github.com/docling/docling), a lightweight document conversion library licensed under the MIT License.
+This project provides an Alfresco Content Services (ACS) transformer that converts a wide variety of document types into Markdown and JSON formats using [Docling](https://github.com/docling-project/docling) and [md2pdf](https://github.com/jmaupetit/md2pdf), lightweight document conversion libraries licensed under the MIT License.
 
 The transformer runs inside a Docker container and can be integrated into Alfresco as a local transformer.
 
 ---
 
-## 🚀 Supported Transformations
+## 🚀 Docling Supported Transformations
 
-The transformer supports the following **source formats**, converted into:
+Docling supports the following **source formats**, converted into:
 
 - `text/markdown`
 - `text/x-markdown`
@@ -39,6 +39,14 @@ The transformer supports the following **source formats**, converted into:
 - USPTO XML (`application/vnd.uspto+xml`)
 
 ---
+
+## 🚀 md2pdf Supported Transformations
+
+`text/markdown` => `application/pdf`
+
+---
+
+
 
 ## 🛠️ Getting Started
 
@@ -96,9 +104,9 @@ Add the following JVM property to your Alfresco instance:
 
 This allows Alfresco to discover and use the transformer.
 
-## License
+## Licenses
 
-- This project uses **Docling**, licensed under the MIT License.
+- This project uses **Docling** and **md2pdf**, licensed under the MIT License.
 
 - Base image from [Alfresco Docker Base Java](https://github.com/Alfresco/alfresco-docker-base-java)
 
@@ -106,7 +114,7 @@ This allows Alfresco to discover and use the transformer.
 
 ## 🙌 Acknowledgments
 
-- [Docling](https://github.com/docling/docling) — for doing the heavy lifting
+- [Docling](https://github.com/docling-project/docling) and [md2pdf](https://github.com/jmaupetit/md2pdf) — for doing the heavy lifting
 - [Alfresco](https://www.alfresco.com/) — for the open content services platform
 - Community contributors and open-source maintainers
 

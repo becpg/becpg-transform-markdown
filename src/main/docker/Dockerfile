@@ -9,13 +9,15 @@ ARG GROUPID=1000
 ARG USERNAME=alfresco
 ARG USERID=33002
 
-RUN yum install -y python3 python3-pip && \
-    pip3 install --no-cache-dir docling && \
+RUN yum install -y python3 python3-pip cairo cairo-devel pango pango-devel gdk-pixbuf2 gdk-pixbuf2-devel libffi-devel && \
+    pip3 install --no-cache-dir docling md2pdf && \
     yum clean all
 
 COPY docling-convert.sh /usr/local/bin/docling-convert.sh
+COPY md2pdf-convert.sh /usr/local/bin/md2pdf-convert.sh
 
 RUN chmod +x /usr/local/bin/docling-convert.sh
+RUN chmod +x /usr/local/bin/md2pdf-convert.sh
 
 COPY becpg-transform-markdown-${project.version}.jar /usr/bin/app.jar
 
