@@ -48,12 +48,12 @@ spec:
             - containerPort: 8090
           env:
             - name: JAVA_OPTS
-              value: " -Xms512m -Xmx512m"
+              value: " -Xms256m -Xmx256m"
           resources:
             requests:
-              memory: "1000Mi"
+              memory: "2000Mi"
             limits:
-              memory: "1500Mi"
+              memory: "2500Mi"
           startupProbe:
             httpGet:
               path: /live
