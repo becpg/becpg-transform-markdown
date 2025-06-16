@@ -90,7 +90,7 @@ public class DoclingTransformer extends AbstractCommandExecutor implements Custo
 		default:
 			doclingTargetFormat = "md";
 		}
-		final String options = "--to " + doclingTargetFormat 
+		final String options = "--no-ocr --to " + doclingTargetFormat 
 				+ (Boolean.TRUE.toString().equals(transformOptions.get("skipImages")) ? " --image-export-mode placeholder" : "");
 		String pageRange = "";
 		Long timeout = null;
