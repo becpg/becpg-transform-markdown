@@ -7,18 +7,6 @@
 			"transformerName": "docling",
 			"supportedSourceAndTargetList": [
 				{
-					"sourceMediaType": "application/pdf",
-					"targetMediaType": "text/markdown"
-				},
-				{
-					"sourceMediaType": "application/pdf",
-					"targetMediaType": "text/x-markdown"
-				},
-				{
-					"sourceMediaType": "application/pdf",
-					"targetMediaType": "application/json"
-				},
-				{
 					"sourceMediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 					"targetMediaType": "text/markdown"
 				},
@@ -195,6 +183,20 @@
 				{
 					"sourceMediaType": "text/x-markdown",
 					"targetMediaType": "application/pdf"
+				}
+			],
+			"transformOptions": []
+		},
+		{
+			"transformerName": "pymupdf4llm",
+			"supportedSourceAndTargetList": [
+				{
+					"sourceMediaType": "application/pdf",
+					"targetMediaType": "text/markdown"
+				},
+				{
+					"sourceMediaType": "application/pdf",
+					"targetMediaType": "text/x-markdown"
 				}
 			],
 			"transformOptions": []

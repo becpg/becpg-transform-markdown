@@ -13,11 +13,17 @@ RUN yum install -y python3 python3-pip cairo cairo-devel pango pango-devel gdk-p
     pip3 install --no-cache-dir docling md2pdf && \
     yum clean all
 
+RUN pip install pymupdf4llm
+
 COPY docling-convert.sh /usr/local/bin/docling-convert.sh
 COPY md2pdf-convert.sh /usr/local/bin/md2pdf-convert.sh
+COPY pymupdf4llm-convert.sh /usr/local/bin/pymupdf4llm-convert.sh
+COPY pymupdf4llm-convert.py /usr/local/bin/pymupdf4llm-convert.py
 
 RUN chmod +x /usr/local/bin/docling-convert.sh
 RUN chmod +x /usr/local/bin/md2pdf-convert.sh
+RUN chmod +x /usr/local/bin/pymupdf4llm-convert.sh
+RUN chmod +x /usr/local/bin/pymupdf4llm-convert.py
 
 COPY becpg-transform-markdown-${project.version}.jar /usr/bin/app.jar
 
