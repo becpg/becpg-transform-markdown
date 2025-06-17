@@ -12,6 +12,8 @@ WORKDIR="/tmp/docling_${BASENAME}_$$"
 mkdir -p "$WORKDIR"
 cp "$INPUT_FILENAME" "$WORKDIR/"
 
+echo "docling workdir is $WORKDIR"
+
 cd "$WORKDIR" || exit 1
 
 # Run docling

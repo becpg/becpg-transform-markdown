@@ -26,6 +26,9 @@
  */
 package org.alfresco.transform.docling.transformers;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +36,11 @@ import java.util.Map;
 import org.alfresco.transform.base.TransformManager;
 import org.alfresco.transform.base.executors.AbstractCommandExecutor;
 import org.alfresco.transform.base.executors.RuntimeExec;
+import org.alfresco.transform.base.executors.RuntimeExec.ExecutionResult;
 import org.alfresco.transform.base.util.CustomTransformerFileAdaptor;
 import org.alfresco.transform.exceptions.TransformException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +48,8 @@ import jakarta.annotation.PostConstruct;
 
 @Component
 public class DoclingTransformer extends AbstractCommandExecutor implements CustomTransformerFileAdaptor {
+
+	private static final Log logger = LogFactory.getLog(DoclingTransformer.class);
 
 	@Value("${transform.core.docling.script.path}")
 	private String convertScriptPath;
@@ -65,6 +73,19 @@ public class DoclingTransformer extends AbstractCommandExecutor implements Custo
 		runtimeExec.setCommandsAndArguments(commandsAndArguments);
 		runtimeExec.setErrorCodes("1,2,255");
 		return runtimeExec;
+	}
+	
+	@Override
+	public void run(Map<String, String> properties, File targetFile, Long timeout) {
+		timeout = timeout != null && timeout > 0 ? timeout : 0;
+		final ExecutionResult result = transformCommand.execute(properties, timeout);
+		logger.info(result.getStdOut());
+		if (result.getExitValue() != 0 && result.getStdErr() != null && result.getStdErr().length() > 0) {
+			throw new TransformException(BAD_REQUEST, "Transformer exit code was not 0: \n" + result.getStdErr());
+		}
+		if (!targetFile.exists() || targetFile.length() == 0) {
+			throw new TransformException(INTERNAL_SERVER_ERROR, "Transformer failed to create an output file");
+		}
 	}
 
 	@Override
