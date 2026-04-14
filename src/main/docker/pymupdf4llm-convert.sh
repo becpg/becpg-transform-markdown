@@ -15,7 +15,7 @@ cd /tmp || exit 1  # move to a known writable location
 
 echo "START CONVERSION WITH pymupdf4llm"
 
-python3 /usr/local/bin/pymupdf4llm-convert.py "$INPUT_FILENAME" "output.md" $OPTIONS
+python3.11 /usr/local/bin/pymupdf4llm-convert.py "$INPUT_FILENAME" "output.md" $OPTIONS
 
 
 mv "output.md" "$OUTPUT_FILENAME"

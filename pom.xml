@@ -133,6 +133,16 @@ a copy of the GNU Lesser General Public License
 									<includes>
 										<include>**/*</include>
 									</includes>
+									<excludes>
+                                        <exclude>*.tar.xz</exclude>
+									</excludes>
+								</resource>
+								<resource>
+									<directory>src/main/docker</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>*.tar.xz</include>
+									</includes>
 								</resource>
 							</resources>
 							<useDefaultDelimiters>true</useDefaultDelimiters>
