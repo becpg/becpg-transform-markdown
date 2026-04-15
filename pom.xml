@@ -14,7 +14,7 @@ a copy of the GNU Lesser General Public License
 	<groupId>fr.becpg</groupId>
 	<artifactId>becpg-transform-markdown</artifactId>
 	<name>beCPG Markdown transformer</name>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<licenses>
 		<license>
 			<name>GNU LESSER GENERAL PUBLIC LICENSE</name>
@@ -182,4 +182,8 @@ a copy of the GNU Lesser General Public License
 		</repository>
 	</repositories>
 
+
+  <scm>
+    <tag>1.0.0</tag>
+  </scm>
 </project>
