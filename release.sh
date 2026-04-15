@@ -9,6 +9,7 @@ cd `dirname ${SCRIPT_PATH}` > /dev/null
 SCRIPT_PATH=`pwd`;
 popd  > /dev/null
 
+
 # Run release:prepare and check its exit status
 if mvn release:prepare; then
 
@@ -18,11 +19,15 @@ if mvn release:prepare; then
 
   # Replace the last digit with the decremented value
   PREVIOUS_SCM_TAG="${SCM_TAG%.*}.$decremented_last_digit"
+  
+    # Increment the current tag for the next version
+  next_digit=$((last_digit + 1))
+  NEXT_SCM_TAG="${SCM_TAG%.*}.$next_digit"
+  
   CHANGES=$(git log --pretty="* %s" $SCM_TAG...$PREVIOUS_SCM_TAG)
   CUR_CHANGE_DATE=`date`
 
   mvn release:clean
-  rm ./release.properties
   
   git push
   git push --tags
@@ -36,8 +41,12 @@ if mvn release:prepare; then
 
   # Add changes to the Changelog.MD file
   echo -e "$CHANGELOG_CONTENT\n" >> CHANGELOG.md
+     
+  # Update cloudbuild.yml with the next version
+  sed -i "s/_VERSION: $SCM_TAG/_VERSION: $NEXT_SCM_TAG/" cloudbuild.delivery.yaml
   
   # Commit and push the updated Changelog.MD file
+  git add cloudbuild.delivery.yaml
   git add CHANGELOG.md
   git commit -m "[skip ci][Release]: Update CHANGELOG.md for $SCM_TAG release"
   git push

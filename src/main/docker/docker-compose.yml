@@ -2,11 +2,9 @@ services:
   becpg-transform-markdown:
     image: ${docker.becpg.url}/becpg-transform-markdown:${docker.becpg.tag}
     build:
-      tags: 
+      tags:
        - ${docker.becpg.url}/becpg-transform-markdown:${docker.becpg.tag}
        - ${docker.becpg.url}/becpg-transform-markdown:${docker.becpg.version}
-      cache_from:
-        - ${docker.becpg.url}/becpg-transform-markdown:${docker.becpg.version}
       dockerfile: ./Dockerfile
       context: ${project.basedir}/target/   
     restart: unless-stopped

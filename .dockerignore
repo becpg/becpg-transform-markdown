@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Maven
+.mvn
+target/
+!target/*.jar
+!target/Dockerfile
+!target/*.sh
+!target/*.py
+!target/docker-compose.yml
+*.class
+*.war
+*.ear
+*.logs
+*.iml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+LICENSE
+NOTICE
+
+# CI/CD
+.github/
+cloudbuild*.yaml
+deployment.yml
+
+# Scripts non essentiels
+run.sh
+release.sh
+
+# Tests
+src/test/
+*.test
+
+# Logs
+*.log
+logs/

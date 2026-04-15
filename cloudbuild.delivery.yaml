@@ -1,0 +1,37 @@
+steps:
+  - name: maven:3-openjdk-17
+    entrypoint: mvn
+    args:
+      - clean
+      - package
+      - -DskipTests
+      - -B
+      - --no-transfer-progress
+  - name: gcr.io/cloud-builders/docker
+    args: ['build','-t','${_IMAGE_NAME}:latest', '-t','${_IMAGE_NAME}:${_VERSION}','-t','${_IMAGE_NAME}:${REF_NAME}', '/workspace/target']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_IMAGE_NAME}:latest']	  
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_IMAGE_NAME}:${_VERSION}']	      
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_IMAGE_NAME}:${REF_NAME}']
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    args:
+    - run
+    - --filename=deployment.yml
+    - --location=${_GKE_LOCATION}
+    - --image=${_IMAGE_NAME}:${_VERSION}
+    - --cluster=${_GKE_CLUSTER}
+    - --project=${_GKE_PROJECT}   
+substitutions:
+  _DOCKER_REPO: europe-west1-docker.pkg.dev/${_REGISTRY_PROJECT_ID}/becpg-docker
+  _IMAGE_NAME: ${_DOCKER_REPO}/becpg-transform-markdown
+  _VERSION: 1.0.0
+  _GKE_CLUSTER: ${BECPG_TEST_CLUSTER}
+  _GKE_PROJECT: ${PROJECT_ID}
+  _GKE_LOCATION : ${BECPG_TEST_CLUSTER_LOCATION}
+options:
+    dynamic_substitutions: true
+    logging: CLOUD_LOGGING_ONLY
+    requestedVerifyOption: VERIFIED
+images: ['${_IMAGE_NAME}:${_VERSION}','${_IMAGE_NAME}:latest','${_IMAGE_NAME}:${REF_NAME}']       

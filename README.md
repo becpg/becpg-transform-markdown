@@ -1,4 +1,42 @@
-# Alfresco Transformer: Docling-based PDF/Office/HTML/Image ➜ Markdown & JSON + md2pdf-based Markdown ➜ PDF
+# beCPG Markdown Transformer for Alfresco
+
+[![Java 17](https://img.shields.io/badge/Java-17-blue.svg)](https://openjdk.org/projects/jdk/17/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7-green.svg)](https://spring.io/projects/spring-boot)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
+[![Docling](https://img.shields.io/badge/Docling-Powered-orange.svg)](https://github.com/docling-project/docling)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+
+> An Alfresco T-Engine that converts PDF, Office documents, HTML, and images to Markdown/JSON using [Docling](https://github.com/docling-project/docling), and Markdown to PDF using [md2pdf](https://github.com/jmaupetit/md2pdf).
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#features)
+- [Supported Transformations](#supported-transformations)
+- [Getting Started](#getting-started)
+- [API Reference](#api-reference)
+- [Docker Deployment](#docker-deployment)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
+
+---
+
+## ✨ Features
+
+- 🔄 **Bidirectional conversion**: PDF/Office → Markdown/JSON and Markdown → PDF
+- 🐳 **Dockerized**: Ready-to-use Docker container with all dependencies
+- 🔌 **Alfresco integration**: Native T-Engine for Alfresco Content Services
+- 🚀 **High performance**: Powered by Docling's efficient document processing
+- 🖼️ **Image support**: Extract and convert images to Markdown
+- 📊 **Structured output**: JSON export for programmatic document processing
+- 🔧 **Extensible**: Easy to add new transformation capabilities
+
+---
+
+## 📖 Overview
 
 This project provides an Alfresco Content Services (ACS) transformer that converts a wide variety of document types into Markdown and JSON formats using [Docling](https://github.com/docling-project/docling) and [md2pdf](https://github.com/jmaupetit/md2pdf), lightweight document conversion libraries licensed under the MIT License.
 
@@ -6,7 +44,7 @@ The transformer runs inside a Docker container and can be integrated into Alfres
 
 ---
 
-## 🚀 Docling Supported Transformations
+## 🚀 Supported Transformations
 
 Docling supports the following **source formats**, converted into:
 
@@ -40,13 +78,13 @@ Docling supports the following **source formats**, converted into:
 
 ---
 
-## 🚀 md2pdf Supported Transformations
+### md2pdf Transformations
 
-`text/markdown` => `application/pdf`
+| Source | Target | Description |
+|--------|--------|-------------|
+| `text/markdown` | `application/pdf` | Convert Markdown documents to PDF |
 
 ---
-
-
 
 ## 🛠️ Getting Started
 
@@ -104,13 +142,73 @@ Add the following JVM property to your Alfresco instance:
 
 This allows Alfresco to discover and use the transformer.
 
-## Licenses
+---
 
+## 🔌 API Reference
+
+### Health Check
+
+```bash
+GET http://localhost:8090/live
+```
+
+### Transform Document
+
+```bash
+POST http://localhost:8090/transform
+```
+
+**Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `file` | File | Yes | Source file to transform |
+| `sourceMimetype` | String | Yes | MIME type of source file |
+| `targetMimetype` | String | Yes | Desired output MIME type |
+
+**Example:**
+```bash
+curl --location --request POST 'http://localhost:8090/transform' \
+  --form 'file=@"/path/to/document.pdf"' \
+  --form 'sourceMimetype="application/pdf"' \
+  --form 'targetMimetype="text/markdown"'
+```
+---
+
+## 🧪 Testing
+
+Run integration tests:
+
+```bash
+./mvnw test
+```
+
+Run a specific test:
+
+```bash
+./mvnw test -Dtest=DoclingTransformerIT
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) for details.
+
+---
+
+## 🔒 Security
+
+For security-related issues, please see our [Security Policy](SECURITY.md).
+
+---
+
+## 📜 License
+
+- This project is licensed under the **GNU Lesser General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
 - This project uses **Docling** and **md2pdf**, licensed under the MIT License.
-
 - Base image from [Alfresco Docker Base Java](https://github.com/Alfresco/alfresco-docker-base-java)
 
-  
+---
 
 ## 🙌 Acknowledgments
 
@@ -118,4 +216,11 @@ This allows Alfresco to discover and use the transformer.
 - [Alfresco](https://www.alfresco.com/) — for the open content services platform
 - Community contributors and open-source maintainers
 
-Feel free to fork, contribute, or open issues. Happy transforming!
+- [beCPG](https://www.becpg.fr/) - The open source PLM solution
+- [Docling](https://github.com/docling-project/docling) - Document conversion made easy
+- [md2pdf](https://github.com/jmaupetit/md2pdf) - Markdown to PDF conversion
+- [Alfresco](https://www.alfresco.com/) - The open content services platform
+
+---
+
+<p align="center">Made with ❤️ by the beCPG team</p>

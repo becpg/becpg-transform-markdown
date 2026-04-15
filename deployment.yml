@@ -5,12 +5,18 @@ metadata:
   name: becpg-transform-markdown
   labels:
     app: becpg-transform-markdown
-    instance: dev
+    part-of: transformers
+    app.kubernetes.io/name: becpg-transform-markdown
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/component: transformer
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: becpg-ci
 spec:
   type: ClusterIP
   ports:
     - port: 8090
       targetPort: 8090
+      protocol: TCP
   selector:
     app: becpg-transform-markdown
 ---
@@ -20,7 +26,12 @@ metadata:
   name: becpg-transform-markdown
   labels:
     app: becpg-transform-markdown
-    instance: dev
+    part-of: transformers
+    app.kubernetes.io/name: becpg-transform-markdown
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/component: transformer
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: becpg-ci
 spec:
   replicas: 1
   selector:
@@ -30,7 +41,12 @@ spec:
     metadata:
       labels:
         app: becpg-transform-markdown
-        instance: dev
+        part-of: transformers
+        app.kubernetes.io/name: becpg-transform-markdown
+        app.kubernetes.io/instance: dev
+        app.kubernetes.io/component: transformer
+        app.kubernetes.io/version: "latest"
+        app.kubernetes.io/managed-by: becpg-ci
     spec:
       containers:
         - name: becpg-transform-markdown
@@ -42,6 +58,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
           ports:
@@ -51,9 +68,9 @@ spec:
               value: " -Xms256m -Xmx256m"
           resources:
             requests:
-              memory: "2000Mi"
+              memory: "4000Mi"
             limits:
-              memory: "2500Mi"
+              memory: "4500Mi"
           startupProbe:
             httpGet:
               path: /live
