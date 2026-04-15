@@ -13,3 +13,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * [Feature] PyMuPDF4LLM transformer for alternative PDF processing
 * [Feature] Docker containerization with Alfresco T-Engine support
 * [Setup] Integration tests with Spring Boot Test framework
+## [ 1.0.0 ] - mer. 15 avril 2026 11:50:18 CEST
+
