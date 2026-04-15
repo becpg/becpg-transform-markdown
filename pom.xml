@@ -1,4 +1,4 @@
-<!-- Copyright (C) 2010-2025 beCPG. This file is part of beCPG beCPG is free
+<!-- Copyright (C) 2010-2026 beCPG. This file is part of beCPG beCPG is free
 software: you can redistribute it and/or modify it under the terms of the GNU
 Lesser General Public License as published by 
 	the Free Software Foundation, either version 3 of the License, or (at your
@@ -14,7 +14,7 @@ a copy of the GNU Lesser General Public License
 	<groupId>fr.becpg</groupId>
 	<artifactId>becpg-transform-markdown</artifactId>
 	<name>beCPG Markdown transformer</name>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<licenses>
 		<license>
 			<name>GNU LESSER GENERAL PUBLIC LICENSE</name>
@@ -182,7 +182,4 @@ a copy of the GNU Lesser General Public License
 		</repository>
 	</repositories>
 
-  <scm>
-    <tag>1.0.0</tag>
-  </scm>
 </project>
