@@ -3,14 +3,13 @@
 [![Java 17](https://img.shields.io/badge/Java-17-blue.svg)](https://openjdk.org/projects/jdk/17/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7-green.svg)](https://spring.io/projects/spring-boot)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
-[![Docling](https://img.shields.io/badge/Docling-Powered-orange.svg)](https://github.com/docling-project/docling)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
-> An Alfresco T-Engine that converts PDF, Office documents, HTML, and images to Markdown/JSON using [Docling](https://github.com/docling-project/docling), and Markdown to PDF using [md2pdf](https://github.com/jmaupetit/md2pdf).
+> An Alfresco T-Engine that converts PDF, Office documents, HTML, and images to Markdown using [MarkItDown](https://github.com/microsoft/markitdown), [pymupdf4llm](https://github.com/pymupdf/PyMuPDF), and Markdown to PDF using [md2pdf](https://github.com/jmaupetit/md2pdf).
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Features](#features)
 - [Supported Transformations](#supported-transformations)
@@ -24,61 +23,62 @@
 
 ---
 
-## ✨ Features
+## Features
 
-- 🔄 **Bidirectional conversion**: PDF/Office → Markdown/JSON and Markdown → PDF
-- 🐳 **Dockerized**: Ready-to-use Docker container with all dependencies
-- 🔌 **Alfresco integration**: Native T-Engine for Alfresco Content Services
-- 🚀 **High performance**: Powered by Docling's efficient document processing
-- 🖼️ **Image support**: Extract and convert images to Markdown
-- 📊 **Structured output**: JSON export for programmatic document processing
-- 🔧 **Extensible**: Easy to add new transformation capabilities
+- **Bidirectional conversion**: PDF/Office/HTML/Images to Markdown and Markdown to PDF
+- **Dockerized**: Ready-to-use Docker container with all dependencies
+- **Alfresco integration**: Native T-Engine for Alfresco Content Services
+- **Lightweight**: Uses MarkItDown and pymupdf4llm instead of heavy ML-based pipelines
+- **Image support**: Convert images to Markdown descriptions
+- **Extensible**: Easy to add new transformation capabilities
 
 ---
 
-## 📖 Overview
+## Overview
 
-This project provides an Alfresco Content Services (ACS) transformer that converts a wide variety of document types into Markdown and JSON formats using [Docling](https://github.com/docling-project/docling) and [md2pdf](https://github.com/jmaupetit/md2pdf), lightweight document conversion libraries licensed under the MIT License.
+This project provides an Alfresco Content Services (ACS) transformer that converts a wide variety of document types into Markdown format using three lightweight Python libraries:
+
+- **[MarkItDown](https://github.com/microsoft/markitdown)** (MIT License) - Converts Office documents, HTML, CSV, and images to Markdown
+- **[pymupdf4llm](https://github.com/pymupdf/PyMuPDF)** (AGPL-3.0) - Converts PDF documents to Markdown
+- **[md2pdf](https://github.com/jmaupetit/md2pdf)** (MIT License) - Converts Markdown to PDF
 
 The transformer runs inside a Docker container and can be integrated into Alfresco as a local transformer.
 
 ---
 
-## 🚀 Supported Transformations
+## Supported Transformations
 
-Docling supports the following **source formats**, converted into:
+### MarkItDown: Documents and Images to Markdown
 
-- `text/markdown`
-- `text/x-markdown`
-- `application/json`
+The following source formats are converted to `text/markdown` (or `text/x-markdown`):
 
-### 📄 Document Types
+**Document Types**
 
-- PDF (`application/pdf`)
-- Word (.docx) (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`)
-- Excel (.xlsx) (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`)
-- PowerPoint (.pptx) (`application/vnd.openxmlformats-officedocument.presentationml.presentation`)
-- Markdown (`text/markdown`)
-- AsciiDoc (`text/asciidoc`)
-- HTML (`text/html`, `application/xhtml+xml`)
-- CSV (`text/csv`)
-- Docling JSON (`application/vnd.docling+json`)
+| Source | MIME Type |
+|--------|-----------|
+| Word (.docx) | `application/vnd.openxmlformats-officedocument.wordprocessingml.document` |
+| Excel (.xlsx) | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` |
+| PowerPoint (.pptx) | `application/vnd.openxmlformats-officedocument.presentationml.presentation` |
+| HTML | `text/html` |
+| XHTML | `application/xhtml+xml` |
+| CSV | `text/csv` |
 
-### 🖼️ Image Types (Markdown only)
+**Image Types**
 
-- PNG (`image/png`)
-- JPEG (`image/jpeg`)
-- TIFF (`image/tiff`)
-- BMP (`image/bmp`)
+| Source | MIME Type |
+|--------|-----------|
+| PNG | `image/png` |
+| JPEG | `image/jpeg` |
+| TIFF | `image/tiff` |
+| BMP | `image/bmp` |
 
-### 🧾 Specialized Formats
+### pymupdf4llm: PDF to Markdown
 
-- JATS XML (`application/vnd.jats+xml`)
-- USPTO XML (`application/vnd.uspto+xml`)
+| Source | Target | Description |
+|--------|--------|-------------|
+| `application/pdf` | `text/markdown` | Convert PDF documents to Markdown |
 
----
-
-### md2pdf Transformations
+### md2pdf: Markdown to PDF
 
 | Source | Target | Description |
 |--------|--------|-------------|
@@ -86,9 +86,9 @@ Docling supports the following **source formats**, converted into:
 
 ---
 
-## 🛠️ Getting Started
+## Getting Started
 
-### 🧱 Build and run the Docker Image
+### Build and run the Docker Image
 
 To create the transformer Docker image, run:
 
@@ -96,7 +96,7 @@ To create the transformer Docker image, run:
 ./run.sh build
 ```
 
-This uses `alfresco-base-java` and installs Python 3 and the `docling` package via pip.
+This uses `alfresco-base-java` and installs Python 3.10 with MarkItDown, pymupdf4llm, and md2pdf via pip.
 
 To run the image:
 
@@ -121,7 +121,7 @@ curl --location --request POST 'http://localhost:8090/transform' \
 --form 'targetMimetype="text/markdown"'
 ```
 
-### 🔗 Register with Alfresco
+### Register with Alfresco
 
 You can declare the Docker service as follow in a docker-compose.yml file:
 
@@ -149,7 +149,7 @@ This allows Alfresco to discover and use the transformer.
 
 ---
 
-## 🔌 API Reference
+## API Reference
 
 ### Health Check
 
@@ -179,53 +179,64 @@ curl --location --request POST 'http://localhost:8090/transform' \
 ```
 ---
 
-## 🧪 Testing
+## Testing
 
-Run integration tests:
+### Unit / Integration tests
+
+Run integration tests (requires MarkItDown and pymupdf4llm installed locally):
 
 ```bash
-./mvnw test
+mvn test
 ```
 
 Run a specific test:
 
 ```bash
-./mvnw test -Dtest=DoclingTransformerIT
+mvn test -Dtest=MarkitdownTransformerIT
 ```
+
+### Docker integration tests
+
+The `DockerTransformIT` builds a Docker image, starts a container, and verifies every supported transformation end-to-end. It is a parameterized test covering all 24 source/target combinations from the config (12 unique transformations, each with both `text/markdown` and `text/x-markdown` targets, plus MD-to-PDF and PDF-to-MD).
+
+```bash
+mvn package -DskipTests
+mvn test -Dtest=DockerTransformIT
+```
+
+Output files are written to `src/test/resources/output/` for manual inspection.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) for details.
 
 ---
 
-## 🔒 Security
+## Security
 
 For security-related issues, please see our [Security Policy](SECURITY.md).
 
 ---
 
-## 📜 License
+## License
 
 - This project is licensed under the **GNU Lesser General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
-- This project uses **Docling** and **md2pdf**, licensed under the MIT License.
+- This project uses **MarkItDown** and **md2pdf**, licensed under the MIT License.
+- This project uses **pymupdf4llm**, licensed under the AGPL-3.0 License.
 - Base image from [Alfresco Docker Base Java](https://github.com/Alfresco/alfresco-docker-base-java)
 
 ---
 
-## 🙌 Acknowledgments
-
-- [Docling](https://github.com/docling-project/docling) and [md2pdf](https://github.com/jmaupetit/md2pdf) — for doing the heavy lifting
-- [Alfresco](https://www.alfresco.com/) — for the open content services platform
-- Community contributors and open-source maintainers
+## Acknowledgments
 
 - [beCPG](https://www.becpg.fr/) - The open source PLM solution
-- [Docling](https://github.com/docling-project/docling) - Document conversion made easy
+- [MarkItDown](https://github.com/microsoft/markitdown) - Microsoft's lightweight document-to-Markdown converter
+- [pymupdf4llm](https://github.com/pymupdf/PyMuPDF) - PDF to Markdown conversion
 - [md2pdf](https://github.com/jmaupetit/md2pdf) - Markdown to PDF conversion
 - [Alfresco](https://www.alfresco.com/) - The open content services platform
 
 ---
 
-<p align="center">Made with ❤️ by the beCPG team</p>
+<p align="center">Made with care by the beCPG team</p>

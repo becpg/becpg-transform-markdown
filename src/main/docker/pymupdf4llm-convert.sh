@@ -12,6 +12,6 @@ cleanup() {
 
 trap cleanup EXIT
 
-python3.11 /usr/local/bin/pymupdf4llm-convert.py "$INPUT_FILENAME" "$TEMP_OUTPUT"
+python3.10 /usr/local/bin/pymupdf4llm-convert.py "$INPUT_FILENAME" "$TEMP_OUTPUT"
 
 mv "$TEMP_OUTPUT" "$OUTPUT_FILENAME"

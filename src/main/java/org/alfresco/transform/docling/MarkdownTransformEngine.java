@@ -49,7 +49,7 @@ public class MarkdownTransformEngine implements TransformEngine {
 
 	@Override
 	public String getStartupMessage() {
-		return COMMUNITY_LICENCE + "This transformer uses Docling and md2pdf";
+		return COMMUNITY_LICENCE + "This transformer uses MarkItDown, PyMuPDF4LLM and md2pdf";
 	}
 
 	@Override

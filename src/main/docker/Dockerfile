@@ -1,16 +1,15 @@
 # Multi-stage Dockerfile for beCPG Markdown Transformer
 # Optimized for: security, image size, and build performance
-# Pre-caches Docling ML models to avoid runtime downloads
 
 # =============================================================================
 # STAGE 1: Python Builder
-# Builds Python 3.11 from source with optimizations
+# Builds Python 3.10 from source with optimizations
 # =============================================================================
 FROM rockylinux:9 AS python-builder
 
-ARG PYTHON_VERSION=3.11.15
+ARG PYTHON_VERSION=3.10.20
 ARG PYTHON_URL=https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
-ARG PYTHON_SHA256=f4de1b10bd6c70cbb9fa1cd71fc5038b832747a74ee59d599c69ce4846defb50
+ARG PYTHON_SHA256=4ff5fd4c5bab803b935019f3e31d7219cebd6f870d00389cea53b88bbe935d1a
 
 # Install build dependencies (cleaned up after build)
 RUN dnf install -y --setopt=install_weak_deps=0 \
@@ -54,13 +53,13 @@ RUN LDFLAGS="-L/usr/lib64 -L/usr/lib" \
 ENV LD_LIBRARY_PATH=/opt/python/lib:$LD_LIBRARY_PATH
 
 # Create virtual environment for isolation
-RUN /opt/python/bin/python3.11 -m venv /opt/venv
+RUN /opt/python/bin/python3.10 -m venv /opt/venv
 
 # =============================================================================
-# STAGE 2: ML Models Cache Builder
-# Pre-downloads Docling ML models to avoid runtime downloads
+# STAGE 2: Python Dependencies
+# Installs markitdown, md2pdf and pymupdf4llm
 # =============================================================================
-FROM rockylinux:9 AS models-cache
+FROM rockylinux:9 AS python-deps
 
 # Copy Python from builder
 COPY --from=python-builder /opt/python /opt/python
@@ -71,10 +70,7 @@ ENV LD_LIBRARY_PATH=/opt/python/lib:$LD_LIBRARY_PATH
 RUN ldconfig /opt/python/lib
 
 ENV PATH="/opt/python/bin:/opt/venv/bin:$PATH"
-ENV PYTHONPATH="/opt/venv/lib/python3.11/site-packages"
-
-# Set Docling cache directory
-ENV DOCLING_ARTIFACTS_PATH=/opt/docling-models
+ENV PYTHONPATH="/opt/venv/lib/python3.10/site-packages"
 
 # Install runtime dependencies needed for pip install (including SSL libs)
 RUN dnf install -y --setopt=install_weak_deps=0 \
@@ -90,14 +86,9 @@ RUN dnf install -y --setopt=install_weak_deps=0 \
     libffi-devel \
     && dnf clean all
 
-# Install docling, md2pdf and pymupdf4llm in venv (all versions pinned)
+# Install markitdown, md2pdf and pymupdf4llm in venv (all versions pinned)
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir docling==2.8.0 md2pdf==0.4.0 pymupdf4llm==0.0.17
-
-# Pre-download Docling models (directory must exist for COPY --from to work)
-RUN mkdir -p ${DOCLING_ARTIFACTS_PATH} \
-    && python -c "from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline; StandardPdfPipeline.download_models_hf(force=True)" 2>/dev/null || \
-    echo "Docling models will be downloaded on first use"
+    && pip install --no-cache-dir 'markitdown[pptx, docx, xlsx]' md2pdf==0.4.0 pymupdf4llm
 
 # =============================================================================
 # STAGE 3: Final Runtime Image
@@ -114,8 +105,7 @@ ARG USERID=33002
 # Set environment variables
 ENV PATH="/opt/python/bin:/opt/venv/bin:$PATH"
 ENV LD_LIBRARY_PATH=/opt/python/lib:$LD_LIBRARY_PATH
-ENV PYTHONPATH="/opt/venv/lib/python3.11/site-packages"
-ENV DOCLING_ARTIFACTS_PATH=/opt/docling-models
+ENV PYTHONPATH="/opt/venv/lib/python3.10/site-packages"
 ENV MPLCONFIGDIR=/tmp/matplotlib
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -146,27 +136,24 @@ COPY --from=python-builder /opt/python /opt/python
 RUN ldconfig /opt/python/lib
 
 # Copy virtual environment with installed packages
-COPY --from=models-cache /opt/venv /opt/venv
-
-# Copy pre-cached ML models (directory guaranteed to exist from models-cache stage)
-COPY --from=models-cache /opt/docling-models /opt/docling-models
+COPY --from=python-deps /opt/venv /opt/venv
 
 # Set ownership and permissions on Python artifacts
-RUN chown -R ${USERNAME}:${GROUPNAME} /opt/venv /opt/docling-models /opt/python \
+RUN chown -R ${USERNAME}:${GROUPNAME} /opt/venv /opt/python \
     && find /opt/venv /opt/python -type d -exec chmod 755 {} \; \
     && find /opt/venv /opt/python -type f -name "*.py" -exec chmod 644 {} \; \
     && find /opt/venv /opt/python -type f ! -name "*.py" -exec chmod 755 {} \;
 
 # Copy application scripts
 COPY --chown=${USERID}:${GROUPID} \
-    docling-convert.sh \
+    markitdown-convert.sh \
     md2pdf-convert.sh \
     pymupdf4llm-convert.sh \
     pymupdf4llm-convert.py \
     /usr/local/bin/
 
 # Set executable permissions on shell scripts only
-RUN chmod +x /usr/local/bin/docling-convert.sh \
+RUN chmod +x /usr/local/bin/markitdown-convert.sh \
     /usr/local/bin/md2pdf-convert.sh \
     /usr/local/bin/pymupdf4llm-convert.sh
 
@@ -174,8 +161,8 @@ RUN chmod +x /usr/local/bin/docling-convert.sh \
 COPY --chown=${USERID}:${GROUPID} becpg-transform-markdown-${project.version}.jar /usr/bin/app.jar
 
 # Create writable directories for runtime
-RUN mkdir -p /tmp/docling /tmp/matplotlib \
-    && chown -R ${USERNAME}:${GROUPNAME} /tmp/docling /tmp/matplotlib
+RUN mkdir -p /tmp/matplotlib \
+    && chown -R ${USERNAME}:${GROUPNAME} /tmp/matplotlib
 
 # Security: Remove setuid/setgid binaries from known locations only
 RUN find /usr /bin /sbin /opt -perm /6000 -type f -exec chmod a-s {} \; 2>/dev/null || true

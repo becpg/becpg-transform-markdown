@@ -1,0 +1,1 @@
+Sample DOCX document for testing.
