@@ -32,11 +32,11 @@ class DoclingTransformerIT {
 
 	@Test
     void testTransformMarkdown() {
-        File source = new File("src/test/resources/sample.pdf");
+        File source = new File("src/test/resources/sucre.pdf");
         File target = new File("src/test/resources/sample-" + System.currentTimeMillis() + ".md");
         Map<String, String> options = new HashMap<>();
         assertDoesNotThrow(() ->
-            transformer.transform("application/pdf", "text/markdow", options, source, target, transformManager)
+            transformer.transform("application/pdf", "text/markdown", options, source, target, transformManager)
         );
     }
 	

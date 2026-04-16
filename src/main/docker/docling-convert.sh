@@ -1,23 +1,36 @@
 #!/bin/bash
-# Arguments: $1 = input base64 file, $2 = output markdown file
+set -euo pipefail
 
 INPUT_FILENAME="$1"
 OUTPUT_FILENAME="$2"
 OPTIONS="$3"
 
-BASENAME=$(basename "$INPUT_FILENAME" | cut -f 1 -d '.')
+IFS=":" read -r TARGET_FORMAT SKIP_IMAGES <<< "$OPTIONS"
+WORKDIR=$(mktemp -d /tmp/docling-XXXXXX)
+BASENAME=$(basename "$INPUT_FILENAME")
+BASENAME="${BASENAME%.*}"
 
-echo "BASENAME is $BASENAME"
-echo "INPUT_FILENAME is $INPUT_FILENAME"
-echo "OUTPUT_FILENAME is $OUTPUT_FILENAME"
+cleanup() {
+    rm -rf "$WORKDIR"
+}
 
-cd /tmp || exit 1  # move to a known writable location
+trap cleanup EXIT
 
-# Run docling
-docling "$INPUT_FILENAME" $OPTIONS
+cd "$WORKDIR"
 
-GENERATED_FILE=$(find . -maxdepth 1 -type f -name "${BASENAME}.*" ! -name "${INPUT_FILENAME}" | head -n 1)
+COMMAND=(docling "$INPUT_FILENAME" --no-ocr --to "${TARGET_FORMAT:-md}")
 
-echo "GENERATED_FILE is $GENERATED_FILE"
+if [ "${SKIP_IMAGES:-false}" = "true" ]; then
+    COMMAND+=(--image-export-mode placeholder)
+fi
+
+"${COMMAND[@]}"
+
+GENERATED_FILE=$(find "$WORKDIR" -maxdepth 1 -type f -name "${BASENAME}.*" | sort | head -n 1)
+
+if [ -z "$GENERATED_FILE" ]; then
+    echo "Docling did not produce an output file" >&2
+    exit 1
+fi
 
 mv "$GENERATED_FILE" "$OUTPUT_FILENAME"

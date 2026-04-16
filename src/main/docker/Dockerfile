@@ -10,6 +10,7 @@ FROM rockylinux:9 AS python-builder
 
 ARG PYTHON_VERSION=3.11.15
 ARG PYTHON_URL=https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
+ARG PYTHON_SHA256=f4de1b10bd6c70cbb9fa1cd71fc5038b832747a74ee59d599c69ce4846defb50
 
 # Install build dependencies (cleaned up after build)
 RUN dnf install -y --setopt=install_weak_deps=0 \
@@ -29,6 +30,7 @@ RUN dnf install -y --setopt=install_weak_deps=0 \
 # Download and extract Python source (TLS verified)
 WORKDIR /tmp
 RUN wget --progress=dot:giga ${PYTHON_URL} \
+    && echo "${PYTHON_SHA256}  Python-${PYTHON_VERSION}.tgz" | sha256sum -c - \
     && tar -xzf Python-${PYTHON_VERSION}.tgz \
     && rm Python-${PYTHON_VERSION}.tgz
 
@@ -134,7 +136,6 @@ RUN dnf install -y --setopt=install_weak_deps=0 \
     poppler-utils \
     libjpeg-turbo \
     libpng \
-    && dnf update -y \
     && dnf clean all \
     && rm -rf /var/cache/dnf /var/lib/dnf/history* /var/log/dnf*
 

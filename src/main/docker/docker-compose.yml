@@ -9,7 +9,4 @@ services:
       context: ${project.basedir}/target/   
     restart: unless-stopped
     ports:
-     - 8090:8090
-     - 8099:8099
-    environment:
-      JAVA_OPTS: "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:8099"
+      - 8090:8090

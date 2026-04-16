@@ -46,6 +46,9 @@ public class Md2pdfTransformer extends AbstractCommandExecutor implements Custom
 	@Value("${transform.core.md2pdf.script.path}")
 	private String convertScriptPath;
 
+	@Value("${transform.core.md2pdf.timeout.ms:300000}")
+	private long timeoutMs;
+
 	@PostConstruct
 	private void createCommands() {
 		super.transformCommand = createTransformCommand();
@@ -81,7 +84,7 @@ public class Md2pdfTransformer extends AbstractCommandExecutor implements Custom
 			TransformManager transformManager) throws TransformException {
 		final String options = "";
 		String pageRange = "";
-		Long timeout = null;
+		Long timeout = timeoutMs;
 		run(options, sourceFile, pageRange, targetFile, timeout);
 	}
 

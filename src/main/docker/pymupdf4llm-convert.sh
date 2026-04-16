@@ -1,21 +1,17 @@
 #!/bin/bash
-# Arguments: $1 = input base64 file, $2 = output markdown file
+set -euo pipefail
 
 INPUT_FILENAME="$1"
 OUTPUT_FILENAME="$2"
-OPTIONS="$3"
 
-BASENAME=$(basename "$INPUT_FILENAME" | cut -f 1 -d '.')
+TEMP_OUTPUT=$(mktemp /tmp/pymupdf4llm-XXXXXX.md)
 
-echo "BASENAME is $BASENAME"
-echo "INPUT_FILENAME is $INPUT_FILENAME"
-echo "OUTPUT_FILENAME is $OUTPUT_FILENAME"
+cleanup() {
+    rm -f "$TEMP_OUTPUT"
+}
 
-cd /tmp || exit 1  # move to a known writable location
+trap cleanup EXIT
 
-echo "START CONVERSION WITH pymupdf4llm"
+python3.11 /usr/local/bin/pymupdf4llm-convert.py "$INPUT_FILENAME" "$TEMP_OUTPUT"
 
-python3.11 /usr/local/bin/pymupdf4llm-convert.py "$INPUT_FILENAME" "output.md" $OPTIONS
-
-
-mv "output.md" "$OUTPUT_FILENAME"
+mv "$TEMP_OUTPUT" "$OUTPUT_FILENAME"

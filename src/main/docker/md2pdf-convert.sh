@@ -1,14 +1,17 @@
 #!/bin/bash
+set -euo pipefail
 
 INPUT_FILENAME="$1"
 OUTPUT_FILENAME="$2"
-OPTIONS="$3"
 
-BASENAME=$(basename "$INPUT_FILENAME" | cut -f 1 -d '.')
+TEMP_OUTPUT=$(mktemp /tmp/md2pdf-XXXXXX.pdf)
 
-cd /tmp || exit 1 
+cleanup() {
+    rm -f "$TEMP_OUTPUT"
+}
 
-# Run md2pdf
-md2pdf "$INPUT_FILENAME" temp.pdf
+trap cleanup EXIT
 
-mv temp.pdf "$OUTPUT_FILENAME"
+md2pdf "$INPUT_FILENAME" "$TEMP_OUTPUT"
+
+mv "$TEMP_OUTPUT" "$OUTPUT_FILENAME"

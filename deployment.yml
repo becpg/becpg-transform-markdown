@@ -66,6 +66,9 @@ spec:
           env:
             - name: JAVA_OPTS
               value: " -Xms256m -Xmx256m"
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           resources:
             requests:
               memory: "4000Mi"
@@ -91,3 +94,6 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 30
             timeoutSeconds: 10
+      volumes:
+        - name: tmp
+          emptyDir: {}

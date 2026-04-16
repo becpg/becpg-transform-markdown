@@ -98,14 +98,19 @@ To create the transformer Docker image, run:
 
 This uses `alfresco-base-java` and installs Python 3 and the `docling` package via pip.
 
-To run the image :
+To run the image:
 
 ```
 ./run.sh start
 ```
 
 * Port 8090 is for transformations
-* Port 8099 is for debugging
+
+To enable remote debugging locally, start the container with:
+
+```bash
+docker compose -f target/docker-compose.yml run -p 8099:8099 -e JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:8099" becpg-transform-markdown
+```
 
 Example of request to transform a PDF file to Markdown:
 

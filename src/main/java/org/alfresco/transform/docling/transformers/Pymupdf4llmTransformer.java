@@ -54,6 +54,9 @@ public class Pymupdf4llmTransformer extends AbstractCommandExecutor implements C
 	@Value("${transform.core.pymupdf4llm.script.path}")
 	private String convertScriptPath;
 
+	@Value("${transform.core.pymupdf4llm.timeout.ms:900000}")
+	private long timeoutMs;
+
 	@PostConstruct
 	private void createCommands() {
 		super.transformCommand = createTransformCommand();
@@ -79,9 +82,14 @@ public class Pymupdf4llmTransformer extends AbstractCommandExecutor implements C
 	public void run(Map<String, String> properties, File targetFile, Long timeout) {
 		timeout = timeout != null && timeout > 0 ? timeout : 0;
 		final ExecutionResult result = transformCommand.execute(properties, timeout);
-		logger.info(result.getStdOut());
-		if (result.getExitValue() != 0 && result.getStdErr() != null && result.getStdErr().length() > 0) {
-			throw new TransformException(BAD_REQUEST, "Transformer exit code was not 0: \n" + result.getStdErr());
+		if (logger.isDebugEnabled()) {
+			logger.debug("PyMuPDF4LLM command finished with exit code " + result.getExitValue());
+		}
+		if (result.getExitValue() != 0) {
+			if (logger.isWarnEnabled() && result.getStdErr() != null && !result.getStdErr().isBlank()) {
+				logger.warn("PyMuPDF4LLM command failed: " + abbreviate(result.getStdErr()));
+			}
+			throw new TransformException(BAD_REQUEST, "Transformer failed with exit code " + result.getExitValue());
 		}
 		if (!targetFile.exists() || targetFile.length() == 0) {
 			throw new TransformException(INTERNAL_SERVER_ERROR, "Transformer failed to create an output file");
@@ -101,8 +109,21 @@ public class Pymupdf4llmTransformer extends AbstractCommandExecutor implements C
 	public void transform(String sourceMimetype, String targetMimetype, Map<String, String> transformOptions, File sourceFile, File targetFile,
 			TransformManager transformManager) throws TransformException {
 		String pageRange = "";
-		Long timeout = null;
+		Long timeout = timeoutMs;
 		run("", sourceFile, pageRange, targetFile, timeout);
+	}
+
+	/**
+	 * Limits command output stored in logs when a conversion fails.
+	 *
+	 * @param output the command output to truncate
+	 * @return a bounded output string suitable for logs
+	 */
+	private String abbreviate(String output) {
+		if (output.length() <= 1000) {
+			return output;
+		}
+		return output.substring(0, 1000) + "...";
 	}
 
 }
