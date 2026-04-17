@@ -23,3 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * [skip ci][Release]: Update CHANGELOG.md for 1.0.0 release
 * [skip ci] Prepare for next development iteration
 
+## [ 1.0.2 ] - ven. 17 avril 2026 11:13:27 CEST
+
+* [Release] prepare release 1.0.2
+* [Setup] Fix probe transform
+* [skip ci][Release]: Update CHANGELOG.md for 1.0.1 release
+* [skip ci] Prepare for next development iteration
+
