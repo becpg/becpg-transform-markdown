@@ -60,6 +60,6 @@ public class MarkdownTransformEngine implements TransformEngine {
 	@Override
 	public ProbeTransform getProbeTransform() {
 		return new ProbeTransform("probe.md", "text/markdown", "application/pdf",
-				Collections.emptyMap(), 8707, 1024, 150, 1024, 60 * 15L + 1, 60 * 15L);
+				Collections.emptyMap(), 10000, 5000, 150, 1024, 60 * 15L + 1, 60 * 15L);
 	}
 }
