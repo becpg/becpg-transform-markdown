@@ -11,7 +11,9 @@ popd  > /dev/null
 
 
 # Run release:prepare and check its exit status
-if mvn release:prepare; then
+# Batch mode : release:prepare demande la version, le tag et la version suivante,
+# ce qui bloque le script quand il tourne sans operateur.
+if mvn -B release:prepare; then
 
   SCM_TAG=$(grep '^scm.tag=' ./release.properties | awk -F'=' '{print $2}')
   last_digit="${SCM_TAG##*.}"  # Extract the last part after the last dot
