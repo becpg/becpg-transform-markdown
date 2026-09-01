@@ -27,7 +27,7 @@ steps:
 substitutions:
   _DOCKER_REPO: europe-west1-docker.pkg.dev/${_REGISTRY_PROJECT_ID}/becpg-docker
   _IMAGE_NAME: ${_DOCKER_REPO}/becpg-transform-markdown
-  _VERSION: 1.0.4
+  _VERSION: 1.0.5
   # Cellule becpg-dev de becpg-test1 : markdown y remplace les transformateurs
   # unitaires aux cotes du tout-en-un. Le declencheur surcharge ces valeurs, elles
   # servent de defaut lisible et de repli pour une execution manuelle.

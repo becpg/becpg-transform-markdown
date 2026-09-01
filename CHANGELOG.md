@@ -37,3 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * [skip ci][Release]: Update CHANGELOG.md for 1.0.2 release
 * [skip ci] Prepare for next development iteration
 
+## [ 1.0.4 ] - mar. 01 sept 2026 18:21:46 CEST
+
+* [Release] prepare release 1.0.4
+* [Setup] Run the markdown release in batch mode so it does not stall unattended
+* Fix #36292 - [Setup] Deliver the markdown transformer into the becpg-dev cell of becpg-test1
+* [skip-ci][Setup] Update changelog
+* [skip ci][Release]: Update CHANGELOG.md for 1.0.3 release
+* [skip ci] Prepare for next development iteration
+
