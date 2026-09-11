@@ -15,15 +15,33 @@ steps:
     args: [ 'push', '${_IMAGE_NAME}:${_VERSION}']
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'push', '${_IMAGE_NAME}:${REF_NAME}']
-  - name: "gcr.io/cloud-builders/gke-deploy"
+  # Connect Gateway (#36252) : le plan de controle de becpg-test1 n'a pas ou n'aura
+  # plus d'IP publique. gke-deploy run faisait lui-meme un clusters get-credentials
+  # vers l'endpoint prive, injoignable depuis Cloud Build (i/o timeout). On separe :
+  # gke-deploy prepare rend les manifestes hors ligne, puis un pas cloud-sdk prend
+  # les identifiants par le gateway et applique. Le compte de service du declencheur
+  # doit porter roles/gkehub.gatewayEditor (sa-cb-delivery : oui).
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    id: prepare-manifests
     args:
-    - run
-    - --filename=deployment.yml
-    - --location=${_GKE_LOCATION}
-    - --image=${_IMAGE_NAME}:${_VERSION}
-    - --cluster=${_GKE_CLUSTER}
-    - --namespace=${_GKE_NAMESPACE}
-    - --project=${_GKE_PROJECT}
+      - prepare
+      - --filename=deployment.yml
+      - --image=${_IMAGE_NAME}:${_VERSION}
+      - --namespace=${_GKE_NAMESPACE}
+      - --output=/workspace/gke-deploy-output
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: deploy-through-gateway
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        gcloud container fleet memberships get-credentials ${_GKE_CLUSTER} \
+          --project=becpg-314807 --location=${_GKE_MEMBERSHIP_LOCATION}
+        kubectl apply -f /workspace/gke-deploy-output/expanded -n ${_GKE_NAMESPACE} -o name | tee /workspace/gke-deploy-applied.txt
+        grep -E '^(deployment|statefulset|daemonset)\.apps/' /workspace/gke-deploy-applied.txt | while read -r obj; do
+          kubectl rollout status "$$obj" -n ${_GKE_NAMESPACE} --timeout=900s
+        done
 substitutions:
   _DOCKER_REPO: europe-west1-docker.pkg.dev/${_REGISTRY_PROJECT_ID}/becpg-docker
   _IMAGE_NAME: ${_DOCKER_REPO}/becpg-transform-markdown
@@ -32,6 +50,7 @@ substitutions:
   # unitaires aux cotes du tout-en-un. Le declencheur surcharge ces valeurs, elles
   # servent de defaut lisible et de repli pour une execution manuelle.
   _GKE_CLUSTER: becpg-test1
+  _GKE_MEMBERSHIP_LOCATION: europe-west9
   _GKE_LOCATION: europe-west9-a
   _GKE_NAMESPACE: becpg-dev
   _GKE_PROJECT: ${PROJECT_ID}
