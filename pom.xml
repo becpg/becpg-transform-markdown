@@ -40,7 +40,7 @@ a copy of the GNU Lesser General Public License
 	<parent>
 		<groupId>org.alfresco</groupId>
 		<artifactId>alfresco-transform-core</artifactId>
-		<version>5.2.0</version>
+		<version>5.4.5</version>
 	</parent>
 
 	<properties>
