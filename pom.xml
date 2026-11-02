@@ -15,7 +15,7 @@ a copy of the GNU Lesser General Public License
 	<artifactId>becpg-transform-markdown</artifactId>
 	<name>becpg-transform-markdown</name>
 	<description>Alfresco transform engine converting documents to Markdown for beCPG</description>
-	<version>1.0.5</version>
+	<version>1.0.6-SNAPSHOT</version>
 	<licenses>
 		<license>
 			<name>GNU LESSER GENERAL PUBLIC LICENSE</name>
@@ -170,8 +170,4 @@ a copy of the GNU Lesser General Public License
 			</snapshots>
 		</repository>
 	</repositories>
-
-  <scm>
-    <tag>1.0.5</tag>
-  </scm>
 </project>
