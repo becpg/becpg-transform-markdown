@@ -17,16 +17,22 @@ if mvn -B release:prepare; then
 
   SCM_TAG=$(grep '^scm.tag=' ./release.properties | awk -F'=' '{print $2}')
   last_digit="${SCM_TAG##*.}"  # Extract the last part after the last dot
-  decremented_last_digit=$((last_digit - 1))  # Decrement the last digit
 
-  # Replace the last digit with the decremented value
-  PREVIOUS_SCM_TAG="${SCM_TAG%.*}.$decremented_last_digit"
+  # Previous tag: ask git rather than decrementing the last digit. Decrementing
+  # breaks on the first release of a line (2.0.0 -> 2.0.-1, which does not
+  # exist) and git log then fails, leaving the release notes empty.
+  PREVIOUS_SCM_TAG=$(git describe --tags --abbrev=0 "$SCM_TAG^" 2>/dev/null)
   
     # Increment the current tag for the next version
   next_digit=$((last_digit + 1))
   NEXT_SCM_TAG="${SCM_TAG%.*}.$next_digit"
   
-  CHANGES=$(git log --pretty="* %s" $SCM_TAG...$PREVIOUS_SCM_TAG)
+  if [ -n "$PREVIOUS_SCM_TAG" ]; then
+    CHANGES=$(git log --pretty="* %s" $PREVIOUS_SCM_TAG...$SCM_TAG)
+  else
+    echo "No previous tag found, listing the whole history"
+    CHANGES=$(git log --pretty="* %s" $SCM_TAG)
+  fi
   CUR_CHANGE_DATE=`date`
 
   mvn release:clean
