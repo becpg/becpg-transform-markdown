@@ -46,3 +46,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * [skip ci][Release]: Update CHANGELOG.md for 1.0.3 release
 * [skip ci] Prepare for next development iteration
 
+## [ 1.0.5 ] - lun. 02 nov 2026 14:01:44 CET
+
+* [Release] prepare release 1.0.5
+* [Bug] - Find the previous tag with git describe in release.sh so x.y.0 releases get their changelog
+* Merge pull request #1 from becpg/security/brotli-ghsa-9v8h-qqgm-4m35
+* InProgress #37977 - [Security] Require brotli 1.2.1 to fix GHSA-9v8h-qqgm-4m35 in the Markdown to PDF path
+* [Setup] - Give the project its technical name and a description for SonarQube
+* [Cleanup] - Remove the repository contributing guide to inherit the organization one
+* [Setup] - Publish the full LGPL v3 text as LICENSE and keep the beCPG copyright notice in NOTICE
+* InProgress #36252 - [Security] Deploy through the Connect Gateway, the control plane has no public IP
+* [skip ci][Release]: Update CHANGELOG.md for 1.0.4 release
+* [skip ci] Prepare for next development iteration
+
