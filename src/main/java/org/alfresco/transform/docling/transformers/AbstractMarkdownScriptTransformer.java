@@ -62,26 +62,24 @@ public abstract class AbstractMarkdownScriptTransformer extends AbstractCommandE
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	/**
-	 * Returns the path of the wrapper script that runs the conversion.
-	 *
-	 * @return the absolute path of the conversion script
-	 */
-	protected abstract String getScriptPath();
+	private final String scriptPath;
+
+	private final long timeoutMs;
+
+	private final String toolLabel;
 
 	/**
-	 * Returns the maximum duration of one conversion.
+	 * Creates a transformer that runs the given wrapper script.
 	 *
-	 * @return the timeout in milliseconds
+	 * @param scriptPath the absolute path of the conversion script
+	 * @param timeoutMs the maximum duration of one conversion, in milliseconds
+	 * @param toolLabel the human-readable name of the underlying tool, used in log messages
 	 */
-	protected abstract long getTimeoutMs();
-
-	/**
-	 * Returns the tool name used in log messages.
-	 *
-	 * @return the human-readable name of the underlying tool
-	 */
-	protected abstract String getToolLabel();
+	protected AbstractMarkdownScriptTransformer(String scriptPath, long timeoutMs, String toolLabel) {
+		this.scriptPath = scriptPath;
+		this.timeoutMs = timeoutMs;
+		this.toolLabel = toolLabel;
+	}
 
 	@PostConstruct
 	private void createCommands() {
@@ -93,7 +91,7 @@ public abstract class AbstractMarkdownScriptTransformer extends AbstractCommandE
 	protected RuntimeExec createTransformCommand() {
 		RuntimeExec runtimeExec = new RuntimeExec();
 		Map<String, String[]> commandsAndArguments = new HashMap<>();
-		commandsAndArguments.put(ANY_MIMETYPE, new String[] { getScriptPath(), "${source}", "${target}", "${options}" });
+		commandsAndArguments.put(ANY_MIMETYPE, new String[] { scriptPath, "${source}", "${target}", "${options}" });
 		runtimeExec.setCommandsAndArguments(commandsAndArguments);
 		runtimeExec.setErrorCodes(TRANSFORM_ERROR_CODES);
 		return runtimeExec;
@@ -130,7 +128,7 @@ public abstract class AbstractMarkdownScriptTransformer extends AbstractCommandE
 		long effectiveTimeout = timeout != null && timeout > 0 ? timeout : 0;
 		ExecutionResult result = transformCommand.execute(properties, effectiveTimeout);
 		if (logger.isDebugEnabled()) {
-			logger.debug(getToolLabel() + " command finished with exit code " + result.getExitValue());
+			logger.debug(toolLabel + " command finished with exit code " + result.getExitValue());
 		}
 		if (result.getExitValue() != 0) {
 			logFailure(result.getStdErr());
@@ -144,12 +142,12 @@ public abstract class AbstractMarkdownScriptTransformer extends AbstractCommandE
 	@Override
 	public void transform(String sourceMimetype, String targetMimetype, Map<String, String> transformOptions,
 			File sourceFile, File targetFile, TransformManager transformManager) throws TransformException {
-		run(NO_OPTIONS, sourceFile, NO_PAGE_RANGE, targetFile, getTimeoutMs());
+		run(NO_OPTIONS, sourceFile, NO_PAGE_RANGE, targetFile, timeoutMs);
 	}
 
 	private void logFailure(String stdErr) {
 		if (logger.isWarnEnabled() && stdErr != null && !stdErr.isBlank()) {
-			logger.warn(getToolLabel() + " command failed: " + abbreviate(stdErr));
+			logger.warn(toolLabel + " command failed: " + abbreviate(stdErr));
 		}
 	}
 

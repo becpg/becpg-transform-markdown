@@ -36,30 +36,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class MarkitdownTransformer extends AbstractMarkdownScriptTransformer {
 
-	@Value("${transform.core.markitdown.script.path}")
-	private String convertScriptPath;
+	private static final String TRANSFORMER_NAME = "markitdown";
+	private static final String TOOL_LABEL = "MarkItDown";
 
-	@Value("${transform.core.markitdown.timeout.ms:900000}")
-	private long timeoutMs;
+	/**
+	 * Creates the MarkItDown transformer from its configuration.
+	 *
+	 * @param scriptPath the absolute path of the MarkItDown wrapper script
+	 * @param timeoutMs the maximum duration of one conversion, in milliseconds
+	 */
+	public MarkitdownTransformer(@Value("${transform.core.markitdown.script.path}") String scriptPath,
+			@Value("${transform.core.markitdown.timeout.ms:900000}") long timeoutMs) {
+		super(scriptPath, timeoutMs, TOOL_LABEL);
+	}
 
 	@Override
 	public String getTransformerName() {
-		return "markitdown";
-	}
-
-	@Override
-	protected String getScriptPath() {
-		return convertScriptPath;
-	}
-
-	@Override
-	protected long getTimeoutMs() {
-		return timeoutMs;
-	}
-
-	@Override
-	protected String getToolLabel() {
-		return "MarkItDown";
+		return TRANSFORMER_NAME;
 	}
 
 }

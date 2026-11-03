@@ -32,6 +32,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 class AbstractMarkdownScriptTransformerTest {
 
 	private static final String SCRIPT_PATH = "/opt/test/convert.sh";
+	private static final long CONFIGURED_TIMEOUT_MS = 1000L;
 	private static final String TRANSFORM_COMMAND_FIELD = "transformCommand";
 	private static final String SOURCE_PATH = "/tmp/in.pdf";
 	private static final String TARGET_PATH = "/tmp/out.md";
@@ -46,8 +47,7 @@ class AbstractMarkdownScriptTransformerTest {
 
 	@BeforeEach
 	void setUp() {
-		transformer = new Pymupdf4llmTransformer();
-		ReflectionTestUtils.setField(transformer, "convertScriptPath", SCRIPT_PATH);
+		transformer = new Pymupdf4llmTransformer(SCRIPT_PATH, CONFIGURED_TIMEOUT_MS);
 		transformCommand = mock(RuntimeExec.class);
 		ReflectionTestUtils.setField(transformer, TRANSFORM_COMMAND_FIELD, transformCommand);
 	}
@@ -64,7 +64,7 @@ class AbstractMarkdownScriptTransformerTest {
 	@Test
 	void checkCommandAsksTheToolNamedAfterTheTransformerForItsVersion() {
 		assertArrayEquals(new String[] { "pymupdf4llm", "--version" }, transformer.createCheckCommand().getCommand());
-		MarkitdownTransformer markitdown = new MarkitdownTransformer();
+		MarkitdownTransformer markitdown = new MarkitdownTransformer(SCRIPT_PATH, CONFIGURED_TIMEOUT_MS);
 		assertArrayEquals(new String[] { "markitdown", "--version" }, markitdown.createCheckCommand().getCommand());
 	}
 
@@ -105,11 +105,10 @@ class AbstractMarkdownScriptTransformerTest {
 
 	@Test
 	void transformForwardsTheConfiguredTimeout() throws IOException {
-		ReflectionTestUtils.setField(transformer, "timeoutMs", 1000L);
 		givenExitValue(0);
 		File targetFile = writeTarget("# title");
 		transformer.transform("application/pdf", "text/markdown", Map.of(), targetFile, targetFile, null);
-		verify(transformCommand).execute(anyMap(), eq(1000L));
+		verify(transformCommand).execute(anyMap(), eq(CONFIGURED_TIMEOUT_MS));
 	}
 
 	@Test

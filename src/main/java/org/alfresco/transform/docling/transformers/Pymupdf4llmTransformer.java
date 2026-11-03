@@ -35,30 +35,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class Pymupdf4llmTransformer extends AbstractMarkdownScriptTransformer {
 
-	@Value("${transform.core.pymupdf4llm.script.path}")
-	private String convertScriptPath;
+	private static final String TRANSFORMER_NAME = "pymupdf4llm";
+	private static final String TOOL_LABEL = "PyMuPDF4LLM";
 
-	@Value("${transform.core.pymupdf4llm.timeout.ms:900000}")
-	private long timeoutMs;
+	/**
+	 * Creates the PyMuPDF4LLM transformer from its configuration.
+	 *
+	 * @param scriptPath the absolute path of the PyMuPDF4LLM wrapper script
+	 * @param timeoutMs the maximum duration of one conversion, in milliseconds
+	 */
+	public Pymupdf4llmTransformer(@Value("${transform.core.pymupdf4llm.script.path}") String scriptPath,
+			@Value("${transform.core.pymupdf4llm.timeout.ms:900000}") long timeoutMs) {
+		super(scriptPath, timeoutMs, TOOL_LABEL);
+	}
 
 	@Override
 	public String getTransformerName() {
-		return "pymupdf4llm";
-	}
-
-	@Override
-	protected String getScriptPath() {
-		return convertScriptPath;
-	}
-
-	@Override
-	protected long getTimeoutMs() {
-		return timeoutMs;
-	}
-
-	@Override
-	protected String getToolLabel() {
-		return "PyMuPDF4LLM";
+		return TRANSFORMER_NAME;
 	}
 
 }
