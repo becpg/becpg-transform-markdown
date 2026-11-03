@@ -7,7 +7,7 @@ steps:
     args:
       - '-c'
       - |
-         mvn sonar:sonar -Dsonar.host.url=https://sonar.becpg.fr -Dsonar.login=$$SONAR_LOGIN 
+         mvn sonar:sonar -Dsonar.host.url=https://sonar.becpg.fr -Dsonar.token=$$SONAR_LOGIN
     secretEnv: ['SONAR_LOGIN']
 availableSecrets:
   secretManager:
