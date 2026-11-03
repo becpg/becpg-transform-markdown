@@ -59,3 +59,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * [skip ci][Release]: Update CHANGELOG.md for 1.0.4 release
 * [skip ci] Prepare for next development iteration
 
+## [ 1.0.6 ] - mar. 03 nov 2026 11:27:43 CET
+
+* [Release] prepare release 1.0.6
+* [Setup] - Update README and MIGRATION for 1.0.6
+* [Setup] - Pin markitdown to 0.1.9 in the Docker image of becpg-transform-markdown
+* [Bug] - Stop advertising TIFF to Markdown, which MarkItDown cannot convert
+* [Cleanup] - Inject the script path, timeout and label through the constructor to remove duplication in the Markdown script transformers
+* [Setup] - Import JaCoCo coverage into SonarQube in becpg-transform-markdown
+* [Bug] - Pin pymupdf4llm to 1.28.2 because 2.x is an empty package that breaks PDF to Markdown on Python 3.10
+* [Cleanup] - Remove trailing whitespace from the CI build definition of becpg-transform-markdown
+* [Setup] - Declare sonar-maven-plugin and use sonar.token so the CI Sonar step runs in becpg-transform-markdown
+* [Setup] - Stop tracking the Eclipse .classpath and .project files already listed in .gitignore
+* Merge branch 'sonar/2026-W44' into main
+* [skip ci][Release]: Update CHANGELOG.md for 1.0.5 release
+* [skip ci] Prepare for next development iteration
+* [Cleanup] - Fix SonarQube issues of week 44 in becpg-transform-markdown
+* [Cleanup] - Update dependencies of week 44 in becpg-transform-markdown
+
