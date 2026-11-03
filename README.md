@@ -126,7 +126,7 @@ You can declare the Docker service as follow in a docker-compose.yml file:
 
 ```yaml
   becpg-transform-markdown:
-    image: becpg-transform-markdown:1.0.0
+    image: becpg/becpg-transform-markdown:1.0.6
     ports:
       - "8090:8090"
     environment:
