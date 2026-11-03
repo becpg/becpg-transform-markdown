@@ -88,7 +88,7 @@ RUN dnf install -y --setopt=install_weak_deps=0 \
 
 # Install markitdown, md2pdf and pymupdf4llm in venv (all versions pinned)
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir 'markitdown[pptx, docx, xlsx]' md2pdf==0.4.0 pymupdf4llm==1.28.2 'brotli>=1.2.1'
+    && pip install --no-cache-dir 'markitdown[pptx, docx, xlsx]==0.1.9' md2pdf==0.4.0 pymupdf4llm==1.28.2 'brotli>=1.2.1'
 
 # =============================================================================
 # STAGE 3: Final Runtime Image
