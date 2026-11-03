@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,9 +33,9 @@ class MarkitdownTransformerIT {
 	}
 
 	@Test
-    void testTransformMarkdown() {
+    void testTransformMarkdown() throws IOException {
         File source = new File("src/test/resources/probe.xlsx");
-        File target = new File("src/test/resources/sample-" + System.currentTimeMillis() + ".md");
+        File target = Files.createTempFile("sample-", ".md").toFile();
         Map<String, String> options = new HashMap<>();
         assertDoesNotThrow(() ->
             transformer.transform("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
