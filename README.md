@@ -69,7 +69,6 @@ The following source formats are converted to `text/markdown` (or `text/x-markdo
 |--------|-----------|
 | PNG | `image/png` |
 | JPEG | `image/jpeg` |
-| TIFF | `image/tiff` |
 | BMP | `image/bmp` |
 
 ### pymupdf4llm: PDF to Markdown
@@ -197,7 +196,7 @@ mvn test -Dtest=MarkitdownTransformerIT
 
 ### Docker integration tests
 
-The `DockerTransformIT` builds a Docker image, starts a container, and verifies every supported transformation end-to-end. It is a parameterized test covering all 24 source/target combinations from the config (12 unique transformations, each with both `text/markdown` and `text/x-markdown` targets, plus MD-to-PDF and PDF-to-MD).
+The `DockerTransformIT` builds a Docker image, starts a container, and verifies every supported transformation end-to-end. It is a parameterized test covering all 22 source/target combinations from the config (11 unique transformations, each with both `text/markdown` and `text/x-markdown` targets, plus MD-to-PDF and PDF-to-MD).
 
 ```bash
 mvn package -DskipTests

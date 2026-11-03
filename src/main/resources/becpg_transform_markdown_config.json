@@ -71,14 +71,6 @@
 					"targetMediaType": "text/x-markdown"
 				},
 				{
-					"sourceMediaType": "image/tiff",
-					"targetMediaType": "text/markdown"
-				},
-				{
-					"sourceMediaType": "image/tiff",
-					"targetMediaType": "text/x-markdown"
-				},
-				{
 					"sourceMediaType": "image/bmp",
 					"targetMediaType": "text/markdown"
 				},
