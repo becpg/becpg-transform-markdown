@@ -1,7 +1,7 @@
 steps:
   - name: maven:3-openjdk-17
     entrypoint: mvn
-    args: ['test'] 
+    args: ['test']
   - name: maven:3-openjdk-17
     entrypoint: bash
     args:
