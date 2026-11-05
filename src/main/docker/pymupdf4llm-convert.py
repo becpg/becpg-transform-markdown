@@ -5,6 +5,9 @@ with RapidOCR when OCR is enabled. Environment variables:
 
 * PYMUPDF4LLM_OCR_ENABLED: "true" (default) or "false"
 * PYMUPDF4LLM_OCR_DPI: rendering resolution used for OCR, 300 by default
+* PYMUPDF4LLM_OCR_MAX_PAGES: maximum number of pages OCRed per document,
+  20 by default, 0 for no limit; the next pages without text are skipped
+* PYMUPDF4LLM_OCR_THREADS: CPU threads used by the OCR engine, 2 by default
 """
 import logging
 import os
@@ -15,9 +18,13 @@ import pymupdf
 import pymupdf4llm
 from pymupdf4llm.helpers import document_layout
 from pymupdf4llm.helpers.utils import is_ocr_text
+from pymupdf4llm.ocr import rapidocr_391_backend
 from pymupdf4llm.ocr.exec_ocr_interface import FONT as OCR_FONT
+from rapidocr import RapidOCR
 
 DEFAULT_OCR_DPI = 300
+DEFAULT_OCR_MAX_PAGES = 20
+DEFAULT_OCR_THREADS = 2
 
 MIN_TEXT_LAYER_CHARS = 100
 MAX_UNREADABLE_CHAR_RATIO = 0.10
@@ -33,15 +40,43 @@ SPAN_STYLE_KEYS = ("font", "size", "flags", "char_flags", "color", "alpha")
 
 _extract_dict = pymupdf.TextPage.extractDICT
 _make_ocr_decision = document_layout.make_ocr_decision
+_ocr_page_count = 0
 
 
 def ocr_enabled():
     return os.environ.get("PYMUPDF4LLM_OCR_ENABLED", "true").strip().lower() != "false"
 
 
+def int_setting(name, default):
+    value = os.environ.get(name, "").strip()
+    return int(value) if value else default
+
+
 def ocr_dpi():
-    value = os.environ.get("PYMUPDF4LLM_OCR_DPI", "").strip()
-    return int(value) if value else DEFAULT_OCR_DPI
+    return int_setting("PYMUPDF4LLM_OCR_DPI", DEFAULT_OCR_DPI)
+
+
+def ocr_max_pages():
+    return int_setting("PYMUPDF4LLM_OCR_MAX_PAGES", DEFAULT_OCR_MAX_PAGES)
+
+
+def ocr_threads():
+    return int_setting("PYMUPDF4LLM_OCR_THREADS", DEFAULT_OCR_THREADS)
+
+
+def init_engine_with_thread_limit():
+    """Create the RapidOCR engine with a bounded number of CPU threads.
+
+    pymupdf4llm creates it without parameters, so ONNX Runtime would use one
+    thread per CPU core of the host.
+    """
+    if rapidocr_391_backend.ENGINE is None:
+        threads = ocr_threads()
+        rapidocr_391_backend.ENGINE = RapidOCR(params={
+            "EngineConfig.onnxruntime.intra_op_num_threads": threads,
+            "EngineConfig.onnxruntime.inter_op_num_threads": 1,
+        })
+    return rapidocr_391_backend.ENGINE
 
 
 def has_text_layer(page):
@@ -53,15 +88,23 @@ def has_text_layer(page):
 
 
 def make_ocr_decision_for_pages_without_text(page, use_ocr):
-    """Skip OCR on pages that already have a readable text layer.
+    """Skip OCR on pages that already have a readable text layer, and beyond
+    the maximum number of OCRed pages.
 
     The pymupdf4llm decision model also OCRs text pages that hold a logo or a
     picture, which adds seconds per page without adding useful text.
     """
+    global _ocr_page_count
     needs_ocr, ocr_spans, only_text = _make_ocr_decision(page, use_ocr)
-    if needs_ocr and has_text_layer(page):
+    if not needs_ocr or has_text_layer(page):
         return False, ocr_spans, only_text
-    return needs_ocr, ocr_spans, only_text
+    max_pages = ocr_max_pages()
+    if 0 < max_pages <= _ocr_page_count:
+        print(f"OCR skipped on page {page.number + 1}: limit of {max_pages} OCRed pages reached",
+              file=sys.stderr)
+        return False, ocr_spans, only_text
+    _ocr_page_count += 1
+    return True, ocr_spans, only_text
 
 
 def is_ocr_span(span):
@@ -122,6 +165,7 @@ def main():
     logging.getLogger("RapidOCR").setLevel(logging.WARNING)
     pymupdf.TextPage.extractDICT = extract_dict_without_ocr_vector_styles
     document_layout.make_ocr_decision = make_ocr_decision_for_pages_without_text
+    rapidocr_391_backend.init_engine = init_engine_with_thread_limit
     with open_as_pdf(input_filename) as document:
         md_text = pymupdf4llm.to_markdown(document, use_ocr=ocr_enabled(), ocr_dpi=ocr_dpi())
     if not md_text.strip():

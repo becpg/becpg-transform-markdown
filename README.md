@@ -76,12 +76,21 @@ The following source formats are converted to `text/markdown` (or `text/x-markdo
 
 Images, and PDF pages without a text layer (scans, text converted to outlines in printer proofs), are read by OCR with RapidOCR. PDF pages that already have a readable text layer (at least 100 characters) are not OCRed, even when they hold a logo or a picture, and are converted as before.
 
-OCR runs on the CPU and takes about 15 to 20 seconds per page with 2 CPUs: a long scanned PDF can take several minutes (the conversion timeout is `transform.core.pymupdf4llm.timeout.ms`, 15 minutes by default). OCR is configured with these environment variables:
+OCR runs on the CPU and takes about 10 to 20 seconds per page with 2 threads. Each OCR conversion uses about 1 GB of memory, so the number of PyMuPDF4LLM conversions running at the same time is limited: the next requests wait for a free slot, up to the conversion timeout, then fail with `503`. With the defaults (2 conversions, 2 OCR threads each), 6 simultaneous OCR requests peak at about 1.7 GiB for the whole container, against 3.8 GiB without the limit. The property can also be set with the `TRANSFORM_CORE_PYMUPDF4LLM_MAX_CONCURRENT` environment variable.
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `transform.core.pymupdf4llm.max.concurrent` | `2` | Maximum number of PyMuPDF4LLM conversions (PDF and images) running at the same time. Allow about 1 GB of container memory per conversion |
+| `transform.core.pymupdf4llm.timeout.ms` | `900000` | Maximum duration of one conversion, and maximum wait for a free conversion slot |
+
+OCR is configured with these environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PYMUPDF4LLM_OCR_ENABLED` | `true` | Set to `false` to disable OCR: images and pages without a text layer then give an empty Markdown |
 | `PYMUPDF4LLM_OCR_DPI` | `300` | Resolution at which pages are rendered for OCR. Lower it to speed up OCR, at the cost of small text |
+| `PYMUPDF4LLM_OCR_MAX_PAGES` | `20` | Maximum number of pages OCRed per document; the next pages without a text layer are skipped. `0` removes the limit |
+| `PYMUPDF4LLM_OCR_THREADS` | `2` | CPU threads used by each OCR conversion. Without a limit, ONNX Runtime would start one thread per CPU core of the host |
 
 ### md2pdf: Markdown to PDF
 
@@ -202,7 +211,7 @@ mvn test -Dtest=MarkitdownTransformerIT
 
 ### Docker integration tests
 
-The `DockerTransformIT` builds a Docker image, starts a container, and verifies every supported transformation end-to-end. It is a parameterized test covering all 24 source/target combinations from the config (12 unique transformations, each with both `text/markdown` and `text/x-markdown` targets). It also checks that the text of a synthetic food label is extracted by OCR from a PDF with outlined text, a PNG and a TIFF.
+The `DockerTransformIT` builds a Docker image, starts a container, and verifies every supported transformation end-to-end. It is a parameterized test covering all 24 source/target combinations from the config (12 unique transformations, each with both `text/markdown` and `text/x-markdown` targets). It also checks that the text of a synthetic food label is extracted by OCR from a PDF with outlined text, a PNG and a TIFF, and that 6 simultaneous OCR conversions all succeed while the container memory peak stays under 3.5 GiB.
 
 ```bash
 mvn package -DskipTests

@@ -47,7 +47,7 @@ class AbstractMarkdownScriptTransformerTest {
 
 	@BeforeEach
 	void setUp() {
-		transformer = new Pymupdf4llmTransformer(SCRIPT_PATH, CONFIGURED_TIMEOUT_MS);
+		transformer = new Pymupdf4llmTransformer(SCRIPT_PATH, CONFIGURED_TIMEOUT_MS, 1);
 		transformCommand = mock(RuntimeExec.class);
 		ReflectionTestUtils.setField(transformer, TRANSFORM_COMMAND_FIELD, transformCommand);
 	}

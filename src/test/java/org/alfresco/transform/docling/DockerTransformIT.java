@@ -2,6 +2,7 @@ package org.alfresco.transform.docling;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,10 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -41,6 +47,8 @@ class DockerTransformIT
     private static final Path RESOURCES = Path.of("src/test/resources");
     private static final Path OUTPUT_DIRECTORY = RESOURCES.resolve("output");
     private static final Duration STARTUP_TIMEOUT = Duration.ofMinutes(8);
+    private static final int CONCURRENT_OCR_REQUESTS = 6;
+    private static final long MAX_CONTAINER_MEMORY_BYTES = 3_500L * 1024 * 1024;
 
     private String imageName;
     private String containerName;
@@ -193,6 +201,47 @@ class DockerTransformIT
             assertTrue(normalized.contains(expected),
                     "Expected '" + expected + "' in OCR output of " + outputLabel + ":\n" + markdown);
         }
+    }
+
+    /**
+     * Sends several OCR conversions at once and checks that they all succeed
+     * while the container memory stays far below the production limit
+     * (4.5 GiB): without the concurrency limit, each OCR process would use
+     * about 1 GB at the same time.
+     *
+     * @throws Exception if a request fails or the memory peak is too high
+     */
+    @Test
+    void shouldQueueConcurrentOcrConversionsWithinTheMemoryLimit() throws Exception
+    {
+        Path fixture = RESOURCES.resolve("sample-label.png");
+        ExecutorService executor = Executors.newFixedThreadPool(CONCURRENT_OCR_REQUESTS);
+        try
+        {
+            List<Future<HttpResponse<byte[]>>> responses = new ArrayList<>();
+            for (int i = 0; i < CONCURRENT_OCR_REQUESTS; i++)
+            {
+                responses.add(executor.submit(() -> postTransform(mappedPort, fixture,
+                        "sample-label.png", "image/png", "text/markdown")));
+            }
+            for (Future<HttpResponse<byte[]>> future : responses)
+            {
+                HttpResponse<byte[]> response = future.get(10, TimeUnit.MINUTES);
+                assertEquals(200, response.statusCode(), new String(response.body(), StandardCharsets.UTF_8));
+                assertTrue(new String(response.body(), StandardCharsets.UTF_8).toLowerCase(Locale.ROOT)
+                        .contains("poids net"));
+            }
+        }
+        finally
+        {
+            executor.shutdownNow();
+        }
+
+        String peak = execute(List.of("docker", "exec", containerName, "cat", "/sys/fs/cgroup/memory.peak"), true).trim();
+        assumeTrue(peak.matches("\\d+"), "cgroup v2 memory.peak is not available: " + peak);
+        long peakBytes = Long.parseLong(peak);
+        assertTrue(peakBytes < MAX_CONTAINER_MEMORY_BYTES,
+                "Container memory peak " + (peakBytes >> 20) + " MiB exceeds " + (MAX_CONTAINER_MEMORY_BYTES >> 20) + " MiB");
     }
 
     /**
