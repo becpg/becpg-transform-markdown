@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Transformer that uses MarkItDown (Microsoft) to convert various document
- * formats (Office, HTML, CSV, images, etc.) to Markdown.
+ * formats (Office, HTML, CSV) to Markdown.
  */
 @Component
 public class MarkitdownTransformer extends AbstractMarkdownScriptTransformer {

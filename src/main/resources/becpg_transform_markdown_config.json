@@ -53,30 +53,6 @@
 				{
 					"sourceMediaType": "text/csv",
 					"targetMediaType": "text/x-markdown"
-				},
-				{
-					"sourceMediaType": "image/png",
-					"targetMediaType": "text/markdown"
-				},
-				{
-					"sourceMediaType": "image/png",
-					"targetMediaType": "text/x-markdown"
-				},
-				{
-					"sourceMediaType": "image/jpeg",
-					"targetMediaType": "text/markdown"
-				},
-				{
-					"sourceMediaType": "image/jpeg",
-					"targetMediaType": "text/x-markdown"
-				},
-				{
-					"sourceMediaType": "image/bmp",
-					"targetMediaType": "text/markdown"
-				},
-				{
-					"sourceMediaType": "image/bmp",
-					"targetMediaType": "text/x-markdown"
 				}
 			],
 			"transformOptions": []
@@ -104,6 +80,38 @@
 				},
 				{
 					"sourceMediaType": "application/pdf",
+					"targetMediaType": "text/x-markdown"
+				},
+				{
+					"sourceMediaType": "image/png",
+					"targetMediaType": "text/markdown"
+				},
+				{
+					"sourceMediaType": "image/png",
+					"targetMediaType": "text/x-markdown"
+				},
+				{
+					"sourceMediaType": "image/jpeg",
+					"targetMediaType": "text/markdown"
+				},
+				{
+					"sourceMediaType": "image/jpeg",
+					"targetMediaType": "text/x-markdown"
+				},
+				{
+					"sourceMediaType": "image/tiff",
+					"targetMediaType": "text/markdown"
+				},
+				{
+					"sourceMediaType": "image/tiff",
+					"targetMediaType": "text/x-markdown"
+				},
+				{
+					"sourceMediaType": "image/bmp",
+					"targetMediaType": "text/markdown"
+				},
+				{
+					"sourceMediaType": "image/bmp",
 					"targetMediaType": "text/x-markdown"
 				}
 			],

@@ -86,9 +86,11 @@ RUN dnf install -y --setopt=install_weak_deps=0 \
     libffi-devel \
     && dnf clean all
 
-# Install markitdown, md2pdf and pymupdf4llm in venv (all versions pinned)
+# Install markitdown, md2pdf, pymupdf4llm and the RapidOCR engine used by pymupdf4llm
+# for pages without a text layer (all versions pinned; RapidOCR ships its ONNX models)
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir 'markitdown[pptx, docx, xlsx]==0.1.9' md2pdf==0.4.0 pymupdf4llm==1.28.2 'brotli>=1.2.1'
+    && pip install --no-cache-dir 'markitdown[pptx, docx, xlsx]==0.1.9' md2pdf==0.4.0 pymupdf4llm==1.28.2 \
+       rapidocr==3.10.0 'brotli>=1.2.1'
 
 # =============================================================================
 # STAGE 3: Final Runtime Image
@@ -109,6 +111,8 @@ ENV PYTHONPATH="/opt/venv/lib/python3.10/site-packages"
 ENV MPLCONFIGDIR=/tmp/matplotlib
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYMUPDF4LLM_OCR_ENABLED=true
+ENV PYMUPDF4LLM_OCR_DPI=300
 
 # Create non-root user first (required before COPY --chown)
 RUN groupadd -g ${GROUPID} ${GROUPNAME} \

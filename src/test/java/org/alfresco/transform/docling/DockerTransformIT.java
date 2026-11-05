@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -116,7 +117,19 @@ class DockerTransformIT
                 Arguments.of("sample.csv", "text/csv",
                         "text/x-markdown", "csv-to-xmd"),
 
-                // markitdown: Images -> Markdown
+                // md2pdf: Markdown -> PDF
+                Arguments.of("sample.md", "text/markdown",
+                        "application/pdf", "md-to-pdf"),
+                Arguments.of("sample.md", "text/x-markdown",
+                        "application/pdf", "xmd-to-pdf"),
+
+                // pymupdf4llm: PDF -> Markdown
+                Arguments.of("sample.pdf", "application/pdf",
+                        "text/markdown", "pdf-to-md"),
+                Arguments.of("sample.pdf", "application/pdf",
+                        "text/x-markdown", "pdf-to-xmd"),
+
+                // pymupdf4llm with OCR: Images -> Markdown
                 Arguments.of("sample.png", "image/png",
                         "text/markdown", "png-to-md"),
                 Arguments.of("sample.png", "image/png",
@@ -129,19 +142,57 @@ class DockerTransformIT
                         "text/markdown", "bmp-to-md"),
                 Arguments.of("sample.bmp", "image/bmp",
                         "text/x-markdown", "bmp-to-xmd"),
-
-                // md2pdf: Markdown -> PDF
-                Arguments.of("sample.md", "text/markdown",
-                        "application/pdf", "md-to-pdf"),
-                Arguments.of("sample.md", "text/x-markdown",
-                        "application/pdf", "xmd-to-pdf"),
-
-                // pymupdf4llm: PDF -> Markdown
-                Arguments.of("sample.pdf", "application/pdf",
-                        "text/markdown", "pdf-to-md"),
-                Arguments.of("sample.pdf", "application/pdf",
-                        "text/x-markdown", "pdf-to-xmd")
+                Arguments.of("sample-label.tiff", "image/tiff",
+                        "text/markdown", "tiff-to-md"),
+                Arguments.of("sample-label.tiff", "image/tiff",
+                        "text/x-markdown", "tiff-to-xmd")
         );
+    }
+
+    /**
+     * Provides the documents without a text layer that must be read by OCR.
+     *
+     * <p>The fixtures are a synthetic food label: {@code sample-vectorized.pdf}
+     * has its text converted to outlines (Ghostscript {@code -dNoOutputFonts}),
+     * like a printer proof, and the images are renderings of that PDF.</p>
+     *
+     * @return stream of fixture filename, source mimetype and output label
+     */
+    static Stream<Arguments> ocrTransformations()
+    {
+        return Stream.of(
+                Arguments.of("sample-vectorized.pdf", "application/pdf", "ocr-vectorized-pdf-to-md"),
+                Arguments.of("sample-label.png", "image/png", "ocr-png-to-md"),
+                Arguments.of("sample-label.tiff", "image/tiff", "ocr-tiff-to-md")
+        );
+    }
+
+    /**
+     * Checks that the text of a document without a text layer is extracted by OCR.
+     *
+     * @param fixture        the test fixture filename in {@code src/test/resources}
+     * @param sourceMimetype the source MIME type
+     * @param outputLabel    label used for the output file name
+     * @throws Exception if the HTTP request or assertion fails
+     */
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("ocrTransformations")
+    void shouldExtractTextByOcr(String fixture, String sourceMimetype, String outputLabel) throws Exception
+    {
+        HttpResponse<byte[]> response = postTransform(mappedPort, RESOURCES.resolve(fixture),
+                fixture, sourceMimetype, "text/markdown");
+
+        assertEquals(200, response.statusCode(),
+                "Transform " + outputLabel + " failed: " + new String(response.body(), StandardCharsets.UTF_8));
+        String markdown = new String(response.body(), StandardCharsets.UTF_8);
+        Files.writeString(OUTPUT_DIRECTORY.resolve(outputLabel + ".md"), markdown);
+
+        String normalized = markdown.toLowerCase(Locale.ROOT);
+        for (String expected : List.of("biscuits", "farine", "beurre", "poids net", "150 g"))
+        {
+            assertTrue(normalized.contains(expected),
+                    "Expected '" + expected + "' in OCR output of " + outputLabel + ":\n" + markdown);
+        }
     }
 
     /**

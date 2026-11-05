@@ -5,7 +5,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
-> An Alfresco T-Engine that converts PDF, Office documents, HTML, and images to Markdown using [MarkItDown](https://github.com/microsoft/markitdown), [pymupdf4llm](https://github.com/pymupdf/PyMuPDF), and Markdown to PDF using [md2pdf](https://github.com/jmaupetit/md2pdf).
+> An Alfresco T-Engine that converts PDF, Office documents, HTML, and images to Markdown using [MarkItDown](https://github.com/microsoft/markitdown), [pymupdf4llm](https://github.com/pymupdf/PyMuPDF) with [RapidOCR](https://github.com/RapidAI/RapidOCR), and Markdown to PDF using [md2pdf](https://github.com/jmaupetit/md2pdf).
 
 ---
 
@@ -29,17 +29,18 @@
 - **Dockerized**: Ready-to-use Docker container with all dependencies
 - **Alfresco integration**: Native T-Engine for Alfresco Content Services
 - **Lightweight**: Uses MarkItDown and pymupdf4llm instead of heavy ML-based pipelines
-- **Image support**: Convert images to Markdown descriptions
+- **OCR**: Extract the text of images, scanned PDFs and PDFs with outlined text (printer proofs) with RapidOCR
 - **Extensible**: Easy to add new transformation capabilities
 
 ---
 
 ## Overview
 
-This project provides an Alfresco Content Services (ACS) transformer that converts a wide variety of document types into Markdown format using three lightweight Python libraries:
+This project provides an Alfresco Content Services (ACS) transformer that converts a wide variety of document types into Markdown format using four lightweight Python libraries:
 
-- **[MarkItDown](https://github.com/microsoft/markitdown)** (MIT License) - Converts Office documents, HTML, CSV, and images to Markdown
-- **[pymupdf4llm](https://github.com/pymupdf/PyMuPDF)** (AGPL-3.0) - Converts PDF documents to Markdown
+- **[MarkItDown](https://github.com/microsoft/markitdown)** (MIT License) - Converts Office documents, HTML and CSV to Markdown
+- **[pymupdf4llm](https://github.com/pymupdf/PyMuPDF)** (AGPL-3.0) - Converts PDF documents and images to Markdown
+- **[RapidOCR](https://github.com/RapidAI/RapidOCR)** (Apache-2.0) - OCR engine used by pymupdf4llm for pages without a text layer
 - **[md2pdf](https://github.com/jmaupetit/md2pdf)** (MIT License) - Converts Markdown to PDF
 
 The transformer runs inside a Docker container and can be integrated into Alfresco as a local transformer.
@@ -48,11 +49,9 @@ The transformer runs inside a Docker container and can be integrated into Alfres
 
 ## Supported Transformations
 
-### MarkItDown: Documents and Images to Markdown
+### MarkItDown: Documents to Markdown
 
 The following source formats are converted to `text/markdown` (or `text/x-markdown`):
-
-**Document Types**
 
 | Source | MIME Type |
 |--------|-----------|
@@ -63,19 +62,26 @@ The following source formats are converted to `text/markdown` (or `text/x-markdo
 | XHTML | `application/xhtml+xml` |
 | CSV | `text/csv` |
 
-**Image Types**
+### pymupdf4llm: PDF and Images to Markdown
+
+The following source formats are converted to `text/markdown` (or `text/x-markdown`):
 
 | Source | MIME Type |
 |--------|-----------|
+| PDF | `application/pdf` |
 | PNG | `image/png` |
 | JPEG | `image/jpeg` |
+| TIFF | `image/tiff` |
 | BMP | `image/bmp` |
 
-### pymupdf4llm: PDF to Markdown
+Images, and PDF pages without a text layer (scans, text converted to outlines in printer proofs), are read by OCR with RapidOCR. PDF pages that already have a readable text layer (at least 100 characters) are not OCRed, even when they hold a logo or a picture, and are converted as before.
 
-| Source | Target | Description |
-|--------|--------|-------------|
-| `application/pdf` | `text/markdown` | Convert PDF documents to Markdown |
+OCR runs on the CPU and takes about 15 to 20 seconds per page with 2 CPUs: a long scanned PDF can take several minutes (the conversion timeout is `transform.core.pymupdf4llm.timeout.ms`, 15 minutes by default). OCR is configured with these environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PYMUPDF4LLM_OCR_ENABLED` | `true` | Set to `false` to disable OCR: images and pages without a text layer then give an empty Markdown |
+| `PYMUPDF4LLM_OCR_DPI` | `300` | Resolution at which pages are rendered for OCR. Lower it to speed up OCR, at the cost of small text |
 
 ### md2pdf: Markdown to PDF
 
@@ -95,7 +101,7 @@ To create the transformer Docker image, run:
 ./run.sh build
 ```
 
-This uses `alfresco-base-java` and installs Python 3.10 with MarkItDown, pymupdf4llm, and md2pdf via pip.
+This uses `alfresco-base-java` and installs Python 3.10 with MarkItDown, pymupdf4llm, RapidOCR and md2pdf via pip. RapidOCR ships its ONNX models, so OCR needs no download at runtime.
 
 To run the image:
 
@@ -196,7 +202,7 @@ mvn test -Dtest=MarkitdownTransformerIT
 
 ### Docker integration tests
 
-The `DockerTransformIT` builds a Docker image, starts a container, and verifies every supported transformation end-to-end. It is a parameterized test covering all 22 source/target combinations from the config (11 unique transformations, each with both `text/markdown` and `text/x-markdown` targets, plus MD-to-PDF and PDF-to-MD).
+The `DockerTransformIT` builds a Docker image, starts a container, and verifies every supported transformation end-to-end. It is a parameterized test covering all 24 source/target combinations from the config (12 unique transformations, each with both `text/markdown` and `text/x-markdown` targets). It also checks that the text of a synthetic food label is extracted by OCR from a PDF with outlined text, a PNG and a TIFF.
 
 ```bash
 mvn package -DskipTests
@@ -224,6 +230,7 @@ For security-related issues, please see our [Security Policy](SECURITY.md).
 - This project is licensed under the **GNU Lesser General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
 - This project uses **MarkItDown** and **md2pdf**, licensed under the MIT License.
 - This project uses **pymupdf4llm**, licensed under the AGPL-3.0 License.
+- This project uses **RapidOCR**, licensed under the Apache-2.0 License.
 - Base image from [Alfresco Docker Base Java](https://github.com/Alfresco/alfresco-docker-base-java)
 
 ---
@@ -232,7 +239,8 @@ For security-related issues, please see our [Security Policy](SECURITY.md).
 
 - [beCPG](https://www.becpg.fr/) - The open source PLM solution
 - [MarkItDown](https://github.com/microsoft/markitdown) - Microsoft's lightweight document-to-Markdown converter
-- [pymupdf4llm](https://github.com/pymupdf/PyMuPDF) - PDF to Markdown conversion
+- [pymupdf4llm](https://github.com/pymupdf/PyMuPDF) - PDF and image to Markdown conversion
+- [RapidOCR](https://github.com/RapidAI/RapidOCR) - OCR engine
 - [md2pdf](https://github.com/jmaupetit/md2pdf) - Markdown to PDF conversion
 - [Alfresco](https://www.alfresco.com/) - The open content services platform
 

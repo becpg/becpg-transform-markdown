@@ -30,7 +30,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Transformer that uses PyMuPDF4LLM to convert PDF documents to Markdown.
+ * Transformer that uses PyMuPDF4LLM to convert PDF documents and images to
+ * Markdown. Pages without a text layer, such as scans, outlined text or images,
+ * are read with the RapidOCR engine installed in the Docker image.
  */
 @Component
 public class Pymupdf4llmTransformer extends AbstractMarkdownScriptTransformer {
