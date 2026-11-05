@@ -2,6 +2,7 @@ package org.alfresco.transform.docling.transformers;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -22,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BooleanSupplier;
 
 import org.alfresco.transform.base.executors.RuntimeExec;
 import org.alfresco.transform.base.executors.RuntimeExec.ExecutionResult;
@@ -69,10 +69,14 @@ class Pymupdf4llmTransformerTest {
 		Pymupdf4llmTransformer transformer = newTransformer(LONG_TIMEOUT_MS, 2);
 		AtomicInteger running = new AtomicInteger();
 		AtomicInteger peak = new AtomicInteger();
+		CountDownLatch twoStarted = new CountDownLatch(2);
+		CountDownLatch thirdStarted = new CountDownLatch(3);
 		CountDownLatch release = new CountDownLatch(1);
 		ExecutionResult success = result(0);
 		when(transformCommand.execute(anyMap(), anyLong())).thenAnswer(invocation -> {
 			peak.accumulateAndGet(running.incrementAndGet(), Math::max);
+			twoStarted.countDown();
+			thirdStarted.countDown();
 			release.await(LONG_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 			running.decrementAndGet();
 			return success;
@@ -83,9 +87,9 @@ class Pymupdf4llmTransformerTest {
 			File target = writeTarget("out" + i + ".md");
 			conversions.add(executor.submit(() -> transform(transformer, target)));
 		}
-		waitUntil(() -> running.get() == 2);
-		Thread.sleep(SHORT_TIMEOUT_MS);
-		assertEquals(2, running.get(), "Only two conversions must run while the slots are taken");
+		assertTrue(twoStarted.await(LONG_TIMEOUT_MS, TimeUnit.MILLISECONDS), "Two conversions must start");
+		assertFalse(thirdStarted.await(SHORT_TIMEOUT_MS, TimeUnit.MILLISECONDS),
+				"Only two conversions must run while the slots are taken");
 
 		release.countDown();
 		for (Future<?> conversion : conversions) {
@@ -157,14 +161,6 @@ class Pymupdf4llmTransformerTest {
 		Path target = tempDir.resolve(name);
 		Files.writeString(target, "# title");
 		return target.toFile();
-	}
-
-	private void waitUntil(BooleanSupplier condition) throws InterruptedException {
-		long deadline = System.currentTimeMillis() + LONG_TIMEOUT_MS;
-		while (!condition.getAsBoolean() && System.currentTimeMillis() < deadline) {
-			Thread.sleep(10);
-		}
-		assertTrue(condition.getAsBoolean(), "Condition not reached in time");
 	}
 
 }
