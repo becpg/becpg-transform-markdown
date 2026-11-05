@@ -77,3 +77,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * [Cleanup] - Fix SonarQube issues of week 44 in becpg-transform-markdown
 * [Cleanup] - Update dependencies of week 44 in becpg-transform-markdown
 
+## [ 1.0.7 ] - jeu. 05 nov 2026 14:27:01 CET
+
+* [Release] prepare release 1.0.7
+* InProgress #37775 - [Cleanup] Replace Thread.sleep with latches in Pymupdf4llmTransformerTest
+* InProgress #37775 - [Feature] Limit concurrent pymupdf4llm conversions, OCR threads and OCR pages per document
+* InProgress #37775 - [Feature] Extract text of images and PDFs without text layer with RapidOCR in pymupdf4llm
+* [skip ci][Release]: Update CHANGELOG.md for 1.0.6 release
+* [skip ci] Prepare for next development iteration
+
