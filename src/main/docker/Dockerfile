@@ -7,9 +7,9 @@
 # =============================================================================
 FROM rockylinux:9 AS python-builder
 
-ARG PYTHON_VERSION=3.10.20
+ARG PYTHON_VERSION=3.10.22
 ARG PYTHON_URL=https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
-ARG PYTHON_SHA256=4ff5fd4c5bab803b935019f3e31d7219cebd6f870d00389cea53b88bbe935d1a
+ARG PYTHON_SHA256=9448b34d16f8e3db0964ac3ed9fb283197747543c2c021f283ffd2c8b7287357
 
 # Install build dependencies (cleaned up after build)
 RUN dnf install -y --setopt=install_weak_deps=0 \
@@ -96,7 +96,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 # STAGE 3: Final Runtime Image
 # Minimal image with only runtime dependencies
 # =============================================================================
-FROM alfresco/alfresco-base-java:jre17-rockylinux9@sha256:f98833508b7be8c4b44a25450f9faac44cacfdc075f2295e02836b93fd05bb9c
+FROM alfresco/alfresco-base-java:jre17-rockylinux9@sha256:c83b4a36e57158fd04a7d3ad41b38e8e340402430711f189e47266c12de351d3
 
 # Security: Non-root user configuration
 ARG GROUPNAME=Alfresco
