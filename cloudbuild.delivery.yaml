@@ -43,7 +43,7 @@ steps:
           kubectl rollout status "$$obj" -n ${_GKE_NAMESPACE} --timeout=900s
         done
 substitutions:
-  _DOCKER_REPO: europe-west1-docker.pkg.dev/${_REGISTRY_PROJECT_ID}/becpg-docker
+  _DOCKER_REPO: europe-docker.pkg.dev/${_REGISTRY_PROJECT_ID}/becpg-docker
   _IMAGE_NAME: ${_DOCKER_REPO}/becpg-transform-markdown
   _VERSION: 1.0.8
   # Cellule becpg-dev de becpg-test1 : markdown y remplace les transformateurs

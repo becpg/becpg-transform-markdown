@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: becpg-transform-markdown
-          image: europe-west1-docker.pkg.dev/becpg-314807/becpg-docker/becpg-transform-markdown:latest        
+          image: europe-docker.pkg.dev/becpg-314807/becpg-docker/becpg-transform-markdown:latest        
           securityContext:
             runAsNonRoot: true
             runAsUser: 33002
