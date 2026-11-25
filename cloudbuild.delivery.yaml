@@ -15,7 +15,7 @@ steps:
     args: [ 'push', '${_IMAGE_NAME}:${_VERSION}']
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'push', '${_IMAGE_NAME}:${REF_NAME}']
-  # Connect Gateway (#36252) : le plan de controle de becpg-test1 n'a pas ou n'aura
+  # Connect Gateway (#36252) : le plan de controle du cluster n'a pas ou n'aura
   # plus d'IP publique. gke-deploy run faisait lui-meme un clusters get-credentials
   # vers l'endpoint prive, injoignable depuis Cloud Build (i/o timeout). On separe :
   # gke-deploy prepare rend les manifestes hors ligne, puis un pas cloud-sdk prend
@@ -46,12 +46,12 @@ substitutions:
   _DOCKER_REPO: europe-docker.pkg.dev/${_REGISTRY_PROJECT_ID}/becpg-docker
   _IMAGE_NAME: ${_DOCKER_REPO}/becpg-transform-markdown
   _VERSION: 1.0.8
-  # Cellule becpg-dev de becpg-test1 : markdown y remplace les transformateurs
+  # Cellule becpg-dev de becpg-test1-eu1 : markdown y remplace les transformateurs
   # unitaires aux cotes du tout-en-un. Le declencheur surcharge ces valeurs, elles
   # servent de defaut lisible et de repli pour une execution manuelle.
-  _GKE_CLUSTER: becpg-test1
-  _GKE_MEMBERSHIP_LOCATION: europe-west9
-  _GKE_LOCATION: europe-west9-a
+  _GKE_CLUSTER: becpg-test1-eu1
+  _GKE_MEMBERSHIP_LOCATION: europe-west1
+  _GKE_LOCATION: europe-west1-b
   _GKE_NAMESPACE: becpg-dev
   _GKE_PROJECT: ${PROJECT_ID}
 options:
